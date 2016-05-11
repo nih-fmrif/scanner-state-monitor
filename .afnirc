@@ -1,0 +1,62 @@
+
+#AFNI DEFAULTS
+***ENVIRONMENT
+ AFNI_NOSPLASH = YES
+ AFNI_YESPLUGOUTS = YES
+ AFNI_PLUGINPATH = /home/rtadmin/RTafni/bin/AFNI
+ AFNI_ENFORCE_ASPECT = YES
+ AFNI_ALWAYS_LOCK = YES
+ AFNI_graph_data_thick    = 1
+ AFNI_chooser_listmax     = 25
+ AFNI_fim_ignore          = 5
+ AFNI_HINTS = NO
+ AFNI_NO_XDBE = YES
+ AFNI_HINTS = YES
+ AFNI_TRUSTHOST = localhost, mrconsole
+ AFNI_REALTIME_Update = 1
+ // AFNI_REALTIME_Registration = 3D:_realtime
+ AFNI_REALTIME_Registration = 3D:_estimate
+ AFNI_REALTIME_Base_Image = 3
+ AFNI_REALTIME_Resampling = Cubic
+ AFNI_REALTIME_Graph = Realtime
+ AFNI_REALTIME_NR = 150
+ AFNI_REALTIME_MP_HOST_PORT  = localhost:53214
+ AFNI_REALTIME_SEND_VER = Yes
+ AFNI_REALTIME_volreg_graphgeom = 500x300+2500+50
+ // AFNI_REALTIME_Verbose = Very // To debug real time, as needed
+ AFNI_VIEW_ANAT_BRICK = Yes  // to force "view brick" mode when possible
+ AFNI_VIEW_FUNC_BRICK = Yes
+ AFNI_DATASET_BROWSE  = Yes  // 20090409 - to live update datasets
+
+***COLORS
+//
+//RBGYR cyclic color map, nice for looking at delay data
+//
+  rbgyr20_01 = #cc1033
+  rbgyr20_02 = #992066
+  rbgyr20_03 = #663199
+  rbgyr20_04 = #3341cc
+  rbgyr20_05 = #0051ff
+  rbgyr20_06 = #0074cc
+  rbgyr20_07 = #009799
+  rbgyr20_08 = #00b966
+  rbgyr20_09 = #00dc33
+  rbgyr20_10 = #00ff00
+  rbgyr20_11 = #33ff00
+  rbgyr20_12 = #66ff00
+  rbgyr20_13 = #99ff00
+  rbgyr20_14 = #ccff00
+  rbgyr20_15 = #ffff00
+  rbgyr20_16 = #ffcc00
+  rbgyr20_17 = #ff9900
+  rbgyr20_18 = #ff6600
+  rbgyr20_19 = #ff3300
+  rbgyr20_20 = #ff0000
+
+//
+//Gray color map with all 20 gray colors above mid gray,
+//the lowest color value is 160 160 160
+//
+  posgray20_01 = #ffffff
+  posgray20_02 = #fafa
+
