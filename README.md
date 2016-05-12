@@ -23,3 +23,16 @@ account must be set, with the command:
 and after this, the volume shared by the container (/data0) should be
 accessible from the MRI's console computer via Windows File Sharing.
 
+The container's super-user should also switch to the container's
+'rtadmin' user, and run:
+
+   ```bash
+   cd ~rtadmin/RTafni/src
+   ./getBuildInstallGDCM.sh
+   ```
+
+as the 'rtadmin' user.  This will retrieve and install the GrassRoots
+DICOM package, which is used to parse and retrieve information which
+cannot be obtained by the pydicom libraries (for example, information
+in the vendor's private DICOM fields).
+

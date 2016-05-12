@@ -30,15 +30,20 @@ RUN zypper --gpg-auto-import-keys --non-interactive install \
                                      libexpat-devel netpbm libnetpbm-devel \
                                      libGLU1    vim tar cron which less \
                                      python-numpy python-matplotlib python-dicom \
-                                     dcmtk libdcmtk3_6 kradview samba ntp
+                                     dcmtk libdcmtk3_6 kradview samba ntp \
+                                     wget cmake gcc gcc-c++
 
-ADD ntp.conf            /etc
-ADD smb.conf            /etc/samba
+ADD ntp.conf                  /etc
+ADD smb.conf                  /etc/samba
 
-ADD .afnirc             /home/rtadmin
-ADD rtadmin.bashrc      /home/rtadmin/.bashrc
-ADD rtadmin.profile     /home/rtadmin/.profile
-ADD .startup            /root
+ADD .afnirc                   /home/rtadmin
+ADD rtadmin.bashrc            /home/rtadmin/.bashrc
+ADD rtadmin.profile           /home/rtadmin/.profile
+RUN mkdir -p                  /home/rtadmin/RTafni/src
+RUN mkdir -p                  /home/rtadmin/RTafni/bin
+ADD getBuildInstallGDCM.sh    /home/rtadmin/RTafni/src
+RUN chown -R rtadmin:users    /home/rtadmin
+ADD .startup                  /root
 
 # Allow Siemens console access to the Samba shares
 RUN smbpasswd -L -n -a meduser

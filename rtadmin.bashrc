@@ -6,6 +6,9 @@ test -s ~/.alias && . ~/.alias || true
 PATH=$PATH:/sbin:/usr/sbin:$HOME/RTafni/bin:$HOME/RTafni/bin/AFNI:.
 export PATH
 
+LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/lib64:/usr/lib64:$HOME/RTafni/lib
+export LD_LIBRARY_PATH
+
 # User specific aliases and functions
 
 alias    rm='rm -i'
