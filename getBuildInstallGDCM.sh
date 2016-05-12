@@ -28,10 +28,6 @@ mkdir gdcm-build-$gdcmVer
 
 cd    gdcm-build-$gdcmVer
 
-CWD=`pwd`
-
-echo In directory $CWD
-
 cmake -DCMAKE_INSTALL_PREFIX:PATH=$HOME/RTafni \
       -DGDCM_BUILD_APPLICATIONS:BOOL=ON \
       -DGDCM_BUILD_SHARED_LIBS:BOOL=ON \
