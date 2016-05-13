@@ -1,0 +1,346 @@
+#!/usr/bin/python
+
+
+
+import time, datetime
+import os, sys, subprocess, signal
+import struct, getopt, re
+import string, dicom, time
+import utilsDICOM
+
+
+
+# A handful of variables for managing DICOM and AFNI handling.
+dimonHost       = 'localhost'
+dicomDataRoot   = "/data0/DICOM/"
+afniDataRoot    = "/data0/rt/"
+
+MEASUREMENT_NOT_RUNNING = 0
+MEASUREMENT_START = 1
+MEASUREMENT_RUNNING = 2
+MACHINE_STATE = MEASUREMENT_NOT_RUNNING
+
+afniWorkingDataDirectory = ""
+afniThisDataDirectory = ""
+dicomWorkingImageRoot = ""
+dimonPID = "-1"
+afniPID  = "-1"
+
+# os.environ ['DISPLAY'] = ':0.0'   # for AFNI display
+
+FILE = "/home/rtadmin/RTafni/tmp/dcmRxInfo.log"
+
+
+
+####
+def tail_f(txtfile):
+   """A python implementation of UNIX 'tail -f'    
+   Use it in the following context:                
+
+   for line in tail_f(open('filename', 'r')):      
+   # do something with line                    
+   """
+   interval = 1.0
+
+   while True:
+      # where = txtfile.tell()
+      line = txtfile.readline()
+      if not line:
+         time.sleep(interval)
+         # txtfile.seek(where)
+      else:
+         yield line
+            
+
+
+####
+def getProgramPID (progName):
+   pid = "-1"
+
+   if progName != "":
+      pidOutput = subprocess.Popen (['pgrep', '-f', progName],
+                                    stdout=subprocess.PIPE)
+
+      pidText = pidOutput.stdout.read()
+
+      if len (pidText.split()) > 0:
+         pid = pidText.split()[0]
+
+   # print "Process ID of " + progName + " is " + str (pid) + "\n"
+
+   return pid
+
+
+
+def dateTimeString ():
+   return datetime.datetime.now().strftime('%G:%m:%d:%I:%M:%S')
+
+
+
+####
+def afniParse(eachLine):
+
+   global afniWorkingDataDirectory
+   global afniThisDataDirectory
+   global dicomWorkingImageRoot
+   global dimonPID
+   global afniPID
+
+   minDimonWaitTime = 10000.0 # milliseconds
+
+   sys.stderr.write (dateTimeString() + ': Processing line: ' + str (eachLine))
+
+   # matched = re.search ('MEAS_FINISHED', eachLine)
+   # if matched:
+   if re.search ('MEAS_FINISHED', eachLine):
+      sys.stderr.write (dateTimeString() + ': Ended scan\n')
+
+      dimonPID = getProgramPID("Dimon")
+      if (dimonPID != "-1"): # Terminate running Dimon processes
+         # print "Killing Dimon process with PID " + dimonPID + "\n"
+         time.sleep (9)  # give recon a small chance to catch up
+         os.system ("pkill Dimon")
+         dimonPID = "-1"
+
+      return
+
+   # matched = re.search ('MEAS_START', eachLine)
+   # if matched:
+   if re.search ('MEAS_START', eachLine):
+      sys.stderr.write (dateTimeString() + ': Scan started\n')
+
+      return
+
+   # If we get here, split message into component words.  If no delimiter is
+   # specified, whitespce is the default.
+   splitText = eachLine.split ()
+
+   # check to see if this is a data element
+   matched = re.search ("DATAFILE", str(splitText[0]))
+   # matched = None
+   # sys.stderr.write ("This is where file " + str(splitText[(len(splitText)-1)]) + " would normally be processed\n")
+
+   if matched: # take actions based on file
+      time.sleep (1)  # allow file to be written
+      # sys.stderr.write (dateTimeString() + ': Processing data file '
+                        # + str(splitText[(len(splitText)-1)]) + '\n')
+      # Image file is usually the last entry on this line of of text. Convert
+      # Windows file path to a POSIX path, and determine matching directory
+      # where BRIK data will be saved.
+      winImageFile = str(splitText[(len(splitText)-1)])
+      unixImageFile = winImageFile.replace ('\\', '/')
+      unixImageFileFullPath = dicomDataRoot + unixImageFile
+
+      fileTest = False
+      while fileTest == False:
+         fileTest = os.path.isfile(unixImageFileFullPath)
+
+      # sys.stderr.write ('Renamed image file is ' + unixImageFileFullPath + '\n')
+      afniThisDataDirectory = utilsDICOM.printAFNIDirectory (unixImageFileFullPath)
+
+      # Check to see if the DICOM information in this image matches what we
+      # need it to be for AFNI and Dimon.  If it does not match the previous
+      # information, we've most likely started a new patient, and we'll need
+      # to restart process in a different location.
+      if ( afniWorkingDataDirectory != afniThisDataDirectory ):
+         sys.stderr.write ('Old AFNI dir is ' + afniWorkingDataDirectory + '\n')
+         sys.stderr.write ('New AFNI dir is ' + afniThisDataDirectory + '\n')
+         sys.stderr.write ('Old and new AFNI working directories do not match. ' +
+                           'Restarting AFNI in correct directory.\n')
+
+         # check for Process ID of running AFNI process
+         # if (afniPID > 0): # Kill existing AFNI process
+         afniPID = getProgramPID("afni -rt")
+         if (afniPID != "-1"): # Kill existing AFNI process
+            sys.stderr.write (dateTimeString() + ': Killing AFNI with PID '
+                              + afniPID + '\n')
+            afniCheck = subprocess.Popen ('pkill -f "afni -rt"', shell=True,
+                                          stdout=subprocess.PIPE)
+            afniPID = "-1"
+
+         # Make and change to working directory where AFNI will write saved
+         # real time BRIKs.  We set up the "working directory" based on the
+         # DICOM tags, as these quantities are constant for all images in a
+         # particular exam. However, the actual directory created and where
+         # AFNI runs from will be based on approximately when the initial
+         # image data for this exam was generated and reconstructed, and the
+         # protocol group and name.  This allows data to be ordered by
+         # acquisition date and time (not patient registration time - which
+         # is the item stored in the DICOM tags, and accessible to us).
+
+         afniWorkingDataDirectory = afniThisDataDirectory
+         completeAFNIWorkingDirPath = afniDataRoot + \
+                                      time.strftime ("%Y%m%d.%H%M%S") + '.' + \
+                                      str(afniThisDataDirectory.split(".") [-1]) # This is the protocol name.
+
+         if not os.path.exists (completeAFNIWorkingDirPath):
+            os.makedirs (completeAFNIWorkingDirPath)
+
+         os.chdir (completeAFNIWorkingDirPath)
+         sys.stderr.write (dateTimeString() + ': Starting AFNI in directory ' + 
+                           completeAFNIWorkingDirPath + '\n')
+
+      # sys.stderr.write (dateTimeString() + ': AFNI PID is ' + afniPID + '\n')
+      if (afniPID == "-1"):
+         afniSP = subprocess.Popen(['afni', '-rt', '-disp', str(os.getenv("DISPLAY"))])
+         afniPID = getProgramPID("afni -rt")
+         time.sleep(3)
+
+      # The next order of business is to make sure DIMON is in its appropriate
+      # state, i.e. running, if images are being acquired, or not running if
+      # we're only now starting acquisition, or if the acquisition was already
+      # already completed.
+
+      # If the acquisition has started, change the state of the machine, and
+      # start Dimon in the directory with incoming DICOM data.
+
+      dimonPID = getProgramPID("Dimon")
+      # sys.stderr.write (dateTimeString() + ': dimonPID is: ' + dimonPID + '\n')
+      if ( dimonPID == "-1" ):    # Start DIMON here
+         sys.stderr.write ('No running instances of Dimon found. Starting...\n')
+
+         # Dicom image name is in format:
+         #
+         #   DirectoryName.With_Date.And.Patient_Name/
+         #   xxx_yyyyyy_zzzzzz.dcm
+         #
+         # where x, y, and z can be any integer.
+         #
+         # The following python command should remove the .dcm file
+         # extension, and the _zzzzzzz image # extension, to give the root
+         # of the incoming images, with the exam and scan numbers.  Take
+         # that, PERL obfuscators !!!
+
+         dicomImageNameRoot = string.join((string.join ((unixImageFile.split(".")[0:-1]), ".")).split("_")[0:-1], "_")
+
+         if (dicomWorkingImageRoot != dicomImageNameRoot):
+            sys.stderr.write ('Image root change ...' + '\n')
+            dicomWorkingImageRoot = dicomImageNameRoot
+
+            firstDicomImageName   = dicomDataRoot + \
+                                    dicomImageNameRoot + \
+                                    "_000001.dcm"
+
+            # Get series description to ensure we are not doing a localizer scan.
+            seriesDescription = utilsDICOM.getSeriesDescription (firstDicomImageName)
+
+            sequenceName = utilsDICOM.getSequenceName (firstDicomImageName)
+
+            if ("ep" in sequenceName):
+               dimonWaitTRs = int (minDimonWaitTime / utilsDICOM.getRepetitionTime (firstDicomImageName)) + 1
+
+               numReps = 1
+               try:
+                  outputGDCM = subprocess.check_output(['gdcmdump', '-C', firstDicomImageName])
+               except CalledProcessError:
+                  sys.stderr.write ('Cannot parse ' + firstDicomImageName + ' for number of repetitions.')
+               else:
+                  numRepsRE = re.compile('lRepetitions\s+=\s+(\d+)')
+                  for line in outputGDCM.splitlines():
+                     match = numRepsRE.search(line)
+                     if match:
+                        numReps = match.group(1)
+                        break
+
+
+            # If not doing a localizer scan - set up, and launch Dimon
+            if not ( (re.search('LOC', seriesDescription) or
+                      re.search('Loc', seriesDescription) or
+                      re.search('loc', seriesDescription)) and
+                      re.search('3'  , seriesDescription)  and
+                      (dimonPID != "-1")):
+
+               dimonImageRoot     = dicomDataRoot + dicomImageNameRoot + "*"
+
+               justDicomImageRoot = dimonImageRoot.split("/")[-1]
+               justDimonDir       = string.join (dimonImageRoot.split("/")[0:-1],
+                                                 "/")
+
+               sys.stderr.write ('Reseting Dimon to work in directory: ' +
+                                 justDimonDir + ' and with image root ' +
+                                 justDicomImageRoot + '\n')
+
+               brikPrefixCommand = " -rt_cmd \"PREFIX " + \
+                                   seriesDescription.replace (" ", "_") + \
+                                   ".nii" + "\""
+
+               if ("ep" in sequenceName):
+                  brikPrefixCommand += " -rt_cmd \"GRAPH_XRANGE " + numReps + "\""
+                  brikPrefixCommand += " -max_quiet_trs " + str(dimonWaitTRs)
+                  brikPrefixCommand += " -drive_afni \"CLOSE_WINDOW axialgraph CLOSE_WINDOW sagittalgraph CLOSE_WINDOW coronalgraph \"  -drive_wait \" OPEN_WINDOW axialgraph pinnum="
+                  brikPrefixCommand += numReps
+                  brikPrefixCommand += " \" "
+
+               os.chdir (justDimonDir)
+
+               dimonCommand = "Dimon -rt" + brikPrefixCommand + \
+                              " -quit " + \
+                              " -host " + dimonHost + \
+                              " -infile_pat \'" + justDicomImageRoot + "\' &"
+
+               print '********* DIMON command: ' + dimonCommand + '\n'
+
+               os.system (dimonCommand)
+               dimonPID = getProgramPID ("Dimon")
+
+               sys.stderr.write (dateTimeString() + ': dimonPID is: ' +
+                                 dimonPID + '\n')
+      return
+
+
+
+####
+def processOptions (argv):
+
+   global FILE
+
+   # print "Processing commmand line options"
+
+   try:
+      opts, args = getopt.getopt(argv, "f:", ["file="])
+   except getopt.GetoptError:
+      sys.stderr.write ('Unrecognized options\n')
+      sys.exit(2)
+
+   for option, argument in opts:
+      if option in ("-f", "--file"):
+         FILE = argument
+         sys.stderr.write ('Setting input file to ' + FILE + '\n')
+      else:
+         sys.stderr.write ('Using input file %s\n' % FILE + '\n')
+
+
+
+####
+if __name__ == '__main__':
+   processOptions (sys.argv[1:])
+
+   # f = open(FILE, 'r')
+   # st_results = os.stat(FILE)
+   # st_size = st_results[6]
+   # f.seek(st_size)
+   #
+   # Some searching on the web, i.e.
+   #
+   #    http://stackoverflow.com/questions/5782279/python-why-does-a-read-only-open-of-a-named-pipe-block
+   #
+   # showed that in order not to block reading from a FIFO pipe, it should
+   # be opened in read/write mode.  So we will try to do this, instead of
+   # having to handle a plain text file, that are the previous 4 lines of
+   # code before this comment.
+
+   print "********* RTafni Version 000000005 *********"
+
+   f = open(FILE, 'w+')
+    
+   try:
+      for line in tail_f(f):
+         afniParse(line)
+   except KeyboardInterrupt:
+      pass
+   finally:
+      f.close()
+      # delete the log file if it exists. the server also does this
+      # if os.path.isfile(FILE):
+         # os.unlink(FILE)
+

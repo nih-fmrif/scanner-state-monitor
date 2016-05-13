@@ -36,17 +36,19 @@ RUN zypper --gpg-auto-import-keys --non-interactive install \
 ADD ntp.conf                  /etc
 ADD smb.conf                  /etc/samba
 
+ADD meduser.bashrc            /home/meduser/.bashrc
 ADD .afnirc                   /home/rtadmin
 ADD rtadmin.bashrc            /home/rtadmin/.bashrc
-ADD rtadmin.profile           /home/rtadmin/.profile
-RUN mkdir -p                  /home/rtadmin/RTafni/src
-RUN mkdir -p                  /home/rtadmin/RTafni/bin
+RUN mkdir -p                  /home/rtadmin/RTafni/src   /home/rtadmin/RTafni/bin/AFNI   /home/rtadmin/RTafni/var/log   /home/rtadmin/RTafni/var/spool/cron/tabs   /home/rtadmin/RTafni/tmp
+ADD crontab.meduser           /home/rtadmin/RTafni/var/spool/cron/tabs
+ADD RTafni check* dcmListenerRT.py utilsDICOM.py         /home/rtadmin/RTafni/bin/
 ADD getBuildInstallGDCM.sh    /home/rtadmin/RTafni/src
 RUN chown -R rtadmin:users    /home/rtadmin
+RUN chown -R meduser:users    /home/rtadmin/RTafni/var/log   /home/rtadmin/RTafni/tmp
 ADD .startup                  /root
 
-# Allow Siemens console access to the Samba shares
-RUN smbpasswd -L -n -a meduser
+# Allow Siemens console access to the Samba shares and start it monitoring for RT
+RUN smbpasswd -L -n -a meduser   &&   crontab -u meduser /home/rtadmin/RTafni/var/spool/cron/tabs/crontab.meduser
 
 
 
