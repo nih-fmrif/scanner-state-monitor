@@ -1,13 +1,13 @@
 
               SHELL=/bin/bash
              MAILTO=""
-               HOME=/home/rtadmin
+               HOME=/home/meduser
                PATH=/sbin:/bin:/usr/sbin:/usr/bin:/usr/local/bin:/usr/X11R6/bin:/home/rtadmin/RTafni/bin:/home/rtadmin/RTafni/bin/AFNI
             DISPLAY=:0.0
 
-0-59/1      *       *       *       *       checkAndKeepAliveWithLogin.sh   dcmListenerRT.py   -f /home/rtadmin/RTafni/tmp/dcmRxInfo.log   -h localhost   -p 5000
+# 0-59/1      *       *       *       *       checkAndKeepAlive.sh   dcmListenerRT.py   -f /home/rtadmin/RTafni/tmp/dcmRxInfo.log   -h localhost   -p 5000
 
-1-59/2      *       *       *       *       checkAndKeepAliveWithLogin.sh   RTafni             -f /home/rtadmin/RTafni/tmp/dcmRxInfo.log
+# 1-59/2      *       *       *       *       checkAndKeepAlive.sh   RTafni             -f /home/rtadmin/RTafni/tmp/dcmRxInfo.log
 
 # 0           0       *       *       *       find   /data0/DICOM/   -mindepth 1   -type d   -name "*"   -print0   |   xargs -0 rm -rf
 
