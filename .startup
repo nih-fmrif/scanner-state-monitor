@@ -4,6 +4,6 @@
 /usr/sbin/ntpd -p /var/run/ntp/ntpd.pid -g -u ntp:ntp -c /etc/ntp.conf
 /usr/sbin/smbd -D
 /usr/sbin/nmbd -D
-/home/rtadmin/RTafni/bin/checkAndKeepAlive.sh   /home/rtadmin/RTafni/bin/dcmListenerRT.py   -f /home/rtadmin/RTafni/tmp/dcmRxInfo.log   -h localhost   -p 5000
+/home/rtadmin/RTafni/bin/checkAndKeepAlive.sh   /home/rtadmin/RTafni/bin/dcmListenerRT.py   -f /home/rtadmin/RTafni/tmp/dcmRxInfo.log   -h $HOSTNAME   -p 8111
 /bin/bash
 

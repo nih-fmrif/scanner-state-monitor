@@ -7,11 +7,14 @@ addition to program files to support FMRIF's real-time AFNI framework.
 The command to run this container is:
 
    ```bash
-   docker run --name rtAFNI -p 138:138/udp -p 139:139 -p 445:445 -p 445:445/udp -v /data0/:/data0 -it dockerAcctName/containerName:version
+   docker run --name rtAFNI -p 138:138/udp -p 139:139 -p 445:445 -p 445:445/udp -p 8111:8111 \
+                            -v /data0/:/data0 -it dockerAcctName/containerName:version
    ```
 
 This will start the container with all of the ports needed for Samba
-opened and mapped.
+opened and mapped, and the port chosen for the scanner console to send
+messages to, and for the DICOM listener (running in the container) to
+observe.
 
 The first time the container is run, the Samba password for the meduser
 account must be set, with the command:

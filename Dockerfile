@@ -59,8 +59,8 @@ VOLUME ["/data0"]
 
 # Ports on container to be exposed/passed through to host
 
-# #        nmbd         smbd      smbd      smbd
-# EXPOSE   138:138/udp  139:139   445:445   445:445/udp
+# #        nmbd         smbd      smbd      smbd          Port chosen for Siemens RT
+# EXPOSE   138:138/udp  139:139   445:445   445:445/udp   8111:8111
 
 
 
