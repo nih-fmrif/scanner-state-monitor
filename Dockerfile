@@ -28,7 +28,7 @@ RUN zypper --gpg-auto-import-keys --non-interactive install \
                                      libxmu-devel libpng12-devel libjpeg62 \
                                      zlib-devel libxt-devel libxext-devel \
                                      libexpat-devel netpbm libnetpbm-devel \
-                                     libGLU1    vim tar which less \
+                                     libGLU1 tcsh    vim tar which less \
                                      python-numpy python-matplotlib python-dicom \
                                      dcmtk libdcmtk3_6 kradview samba ntp \
                                      wget cmake gcc gcc-c++
@@ -39,8 +39,8 @@ ADD smb.conf                  /etc/samba
 ADD meduser.bashrc            /home/meduser/.bashrc
 ADD .afnirc                   /home/rtadmin
 ADD rtadmin.bashrc            /home/rtadmin/.bashrc
-RUN mkdir -p                  /home/rtadmin/RTafni/src   /home/rtadmin/RTafni/bin/AFNI   /home/rtadmin/RTafni/var/log   /home/rtadmin/RTafni/var/spool/cron/tabs   /home/rtadmin/RTafni/tmp
-ADD RTafni checkAndKeepAlive.sh dcmListenerRT.py utilsDICOM.py   /home/rtadmin/RTafni/bin/
+RUN mkdir -p                  /home/rtadmin/RTafni/src   /home/rtadmin/RTafni/bin/AFNI   /home/rtadmin/RTafni/var/log/RTafni.log   /home/rtadmin/RTafni/var/spool/cron/tabs   /home/rtadmin/RTafni/tmp
+ADD RTafni checkAndKeepAlive.sh  dcmListenerRT.py utilsDICOM.py  @update.afni.binaries   /home/rtadmin/RTafni/bin/
 ADD getBuildInstallGDCM.sh    /home/rtadmin/RTafni/src
 RUN chown -R rtadmin:users    /home/rtadmin
 RUN chown -R meduser:users    /home/rtadmin/RTafni/var/log   /home/rtadmin/RTafni/tmp

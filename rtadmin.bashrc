@@ -3,11 +3,9 @@ test -s ~/.alias && . ~/.alias || true
 
 # source ~/.login
 
-PATH=$PATH:/sbin:/usr/sbin:$HOME/RTafni/bin:$HOME/RTafni/bin/AFNI:.
-export PATH
+export PATH=$PATH:/sbin:/usr/sbin:/home/rtadmin/RTafni/bin:/home/rtadmin/RTafni/bin/AFNI:.
 
-LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/lib64:/usr/lib64:$HOME/RTafni/lib
-export LD_LIBRARY_PATH
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/lib64:/usr/lib64:/home/rtadmin/RTafni/lib
 
 # User specific aliases and functions
 

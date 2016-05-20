@@ -34,8 +34,16 @@ The container's super-user should also switch to the container's
    ./getBuildInstallGDCM.sh
    ```
 
-as the 'rtadmin' user.  This will retrieve and install the GrassRoots
-DICOM package, which is used to parse and retrieve information which
+as that user.  This will retrieve and install the GrassRoots DICOM
+package, which is used to parse and retrieve information which
 cannot be obtained by the pydicom libraries (for example, information
 in the vendor's private DICOM fields).
+
+The container's 'rtadmin' user should also run:
+
+   ```bash
+   @update.afni.binaries -package linux_openmp_64 -bindir /home/rtadmin/RTafni/bin/AFNI/
+   ```
+
+to retrieve and install the latest AFNI binaries.
 
