@@ -4,18 +4,6 @@
 This reposiotry will hold a Docker container build configuration, in
 addition to program files to support FMRIF's real-time AFNI framework.
 
-The command to run this container is:
-
-   ```bash
-   docker run --name rtAFNI -p 138:138/udp -p 139:139 -p 445:445 -p 445:445/udp -p 8111:8111 \
-                            -v /data0/:/data0 -it dockerAcctName/containerName:version
-   ```
-
-This will start the container with all of the ports needed for Samba
-opened and mapped, and the port chosen for the scanner console to send
-messages to, and for the DICOM listener (running in the container) to
-observe.
-
 The first time the container is run, the Samba password for the meduser
 account must be set, with the command:
 
@@ -46,4 +34,22 @@ The container's 'rtadmin' user should also run:
    ```
 
 to retrieve and install the latest AFNI binaries.
+
+The command to run this container is:
+
+   ```bash
+   docker run --name rtAFNI -p 138:138/udp -p 139:139 -p 445:445 -p 445:445/udp -p 8111:8111 \
+                            -e DISPLAY=unix$DISPLAY -v /data0/:/data0 -v /tmp/.X11-unix/:/tmp/.X11-unix/ \
+                            -it dockerAcctName/containerName:version
+   ```
+
+The tip about which variables to pass through to get X11 apps forwarded
+through and displaying on host was found at:
+
+   https://blog.jessfraz.com/post/docker-containers-on-the-desktop/
+
+This will start the container with all of the ports needed for Samba
+opened and mapped, and the port chosen for the scanner console to send
+messages to, and for the DICOM listener (running in the container) to
+observe.
 

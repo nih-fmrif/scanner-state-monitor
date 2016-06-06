@@ -28,7 +28,7 @@ mkdir gdcm-build-$gdcmVer
 
 cd    gdcm-build-$gdcmVer
 
-cmake -DCMAKE_INSTALL_PREFIX:PATH=$HOME/RTafni \
+cmake -DCMAKE_INSTALL_PREFIX:PATH=/home/rtadmin/RTafni \
       -DGDCM_BUILD_APPLICATIONS:BOOL=ON \
       -DGDCM_BUILD_SHARED_LIBS:BOOL=ON \
       -DGDCM_BUILD_TESTING:BOOL=OFF `find .. -maxdepth 1 -type d -name "gdcm-$gdcmVer*"`

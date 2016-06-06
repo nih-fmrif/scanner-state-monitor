@@ -31,7 +31,7 @@ RUN zypper --gpg-auto-import-keys --non-interactive install \
                                      libGLU1 tcsh    vim tar which less \
                                      python-numpy python-matplotlib python-dicom \
                                      dcmtk libdcmtk3_6 kradview samba ntp \
-                                     wget cmake gcc gcc-c++
+                                     wget cmake gcc gcc-c++ xeyes
 
 ADD ntp.conf                  /etc
 ADD smb.conf                  /etc/samba
@@ -42,8 +42,15 @@ ADD rtadmin.bashrc            /home/rtadmin/.bashrc
 RUN mkdir -p                  /home/rtadmin/RTafni/src   /home/rtadmin/RTafni/bin/AFNI   /home/rtadmin/RTafni/var/log/RTafni.log   /home/rtadmin/RTafni/var/spool/cron/tabs   /home/rtadmin/RTafni/tmp
 ADD RTafni checkAndKeepAlive.sh  dcmListenerRT.py utilsDICOM.py  @update.afni.binaries   /home/rtadmin/RTafni/bin/
 ADD getBuildInstallGDCM.sh    /home/rtadmin/RTafni/src
+
+# To determine if these are left in default Dockerfile, as they lead to
+# the final image being ~ 6.5 GB, or left for the user to download a
+# smaller image, and run these the first time the container is launched.
+RUN /home/rtadmin/RTafni/bin/\@update.afni.binaries    -package linux_openmp_64   -bindir /home/rtadmin/RTafni/bin/AFNI/
+RUN cd /home/rtadmin/RTafni/src   &&   ./getBuildInstallGDCM.sh
+
 RUN chown -R rtadmin:users    /home/rtadmin
-RUN chown -R meduser:users    /home/rtadmin/RTafni/var/log   /home/rtadmin/RTafni/tmp
+# RUN chown -R meduser:users    /home/rtadmin/RTafni/var/log   /home/rtadmin/RTafni/tmp
 ADD .startup                  /root
 
 # Allow Siemens console access to the Samba shares and start it monitoring for RT

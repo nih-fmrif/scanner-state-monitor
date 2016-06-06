@@ -1,6 +1,4 @@
 
-#!/bin/bash
-
 /usr/sbin/ntpd -p /var/run/ntp/ntpd.pid -g -u ntp:ntp -c /etc/ntp.conf
 /usr/sbin/smbd -D
 /usr/sbin/nmbd -D
@@ -8,8 +6,6 @@
 export PATH=$PATH:/sbin:/usr/sbin:/home/rtadmin/RTafni/bin:/home/rtadmin/RTafni/bin/AFNI:.
 
 export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/lib64:/usr/lib64:/home/rtadmin/RTafni/lib
-
-export DISPLAY=$HOSTNAME\:0.0
 
 /home/rtadmin/RTafni/bin/checkAndKeepAlive.sh   /home/rtadmin/RTafni/bin/dcmListenerRT.py   -f /home/rtadmin/RTafni/tmp/dcmRxInfo.log   -h $HOSTNAME   -p 8111
 
