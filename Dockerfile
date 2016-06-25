@@ -12,9 +12,9 @@ RUN zypper ar -f http://download.opensuse.org/update/13.2/ update   &&   \
 
 # Add rtadmin and meduser/sdc users:
 
-RUN useradd -b /home -d /home/rtadmin -m -u  999 -g 100 -G users,audio -s /bin/bash rtadmin
+RUN useradd -d /home/rtadmin -m -u  999 -g 100 -G users,audio -s /bin/bash rtadmin
 
-RUN useradd -b /home -d /home/meduser -m -u 1000 -g 100 -G users,audio -s /bin/bash meduser
+RUN useradd -d /home/meduser -m -u 1000 -g 100 -G users,audio -s /bin/bash meduser
 
 
 
