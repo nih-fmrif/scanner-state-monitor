@@ -17,6 +17,7 @@ enable running Samba from within the container, in the Dockerfile, the
 comment ('#') marks should be removed from the following lines:
 
    # ADD smb.conf                  /etc/samba
+
    # RUN smbpasswd -L -n -a meduser
 
 The lines starting up Samba in the '.startup' script (that is copied to
