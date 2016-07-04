@@ -1,7 +1,7 @@
 
-/usr/sbin/ntpd -p /var/run/ntp/ntpd.pid -g -u ntp:ntp -c /etc/ntp.conf
-/usr/sbin/smbd -D
-/usr/sbin/nmbd -D
+# /usr/sbin/ntpd -p /var/run/ntp/ntpd.pid -g -u ntp:ntp -c /etc/ntp.conf
+# /usr/sbin/smbd -D
+# /usr/sbin/nmbd -D
 
 export PATH=$PATH:/sbin:/usr/sbin:/home/rtadmin/RTafni/bin:/home/rtadmin/RTafni/bin/AFNI:.
 

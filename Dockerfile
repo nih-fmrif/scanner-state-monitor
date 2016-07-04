@@ -34,7 +34,7 @@ RUN zypper --gpg-auto-import-keys --non-interactive install \
                                      wget cmake gcc gcc-c++ xeyes
 
 ADD ntp.conf                  /etc
-ADD smb.conf                  /etc/samba
+# ADD smb.conf                  /etc/samba
 
 ADD meduser.bashrc            /home/meduser/.bashrc
 ADD .afnirc                   /home/rtadmin
@@ -54,7 +54,7 @@ RUN chown -R rtadmin:users    /home/rtadmin
 ADD .startup                  /root
 
 # Allow Siemens console access to the Samba shares and start it monitoring for RT
-RUN smbpasswd -L -n -a meduser
+# RUN smbpasswd -L -n -a meduser
 
 
 
