@@ -32,6 +32,9 @@ RUN zypper --gpg-auto-import-keys --non-interactive install \
                                      python-numpy python-matplotlib python-dicom \
                                      dcmtk libdcmtk3_6 kradview samba ntp \
                                      wget cmake gcc gcc-c++ xeyes
+                                     # To compile AFNI within container, the following are also needed:
+                                     #
+                                     # gsl-devel glu-devel freeglut-devel R-base-devel libXi-devel
 
 ADD ntp.conf                  /etc
 # ADD smb.conf                  /etc/samba
