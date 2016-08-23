@@ -70,3 +70,14 @@ This has pointed the container to the correct X11 DISPLAY to use, but a:
 commnad on the host PC might still be needed to allow X11 connections
 from the container to be established.
 
+The following convenience alias can be added to the account of the user(s)
+running this container, to allow easy starting, or re-starting:
+
+   ```bash
+   alias rtAFNI='xhost + ; docker start rtAFNI ; docker attach rtAFNI ; xhost -'
+
+   alias rtAFNIinit='xhost + ; docker run --name rtAFNI -p 8080:8080 -e DISPLAY=unix -v /data/data0/:/data0 -v /tmp/.X11-unix/:/tmp/.X11-unix/ -it roopchansinghv/nih-fmrif-rtafni:latest ; xhost -'
+
+   alias rtAFNIreset='docker rm rtAFNI ; rtAFNIinit'
+   ```
+
