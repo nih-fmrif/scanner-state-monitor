@@ -1,0 +1,18 @@
+
+#!/bin/sh
+
+# listenerProcess=`ps -ef | grep -i python | grep conda` # test for program that should not be running
+listenerProcess=`ps -ef | grep -i python | grep dcmListener`
+
+if [ $? -eq '1' ]
+then
+   echo "No instances of listener found running.  Exiting ..."
+   exit -1
+fi
+
+processID=`echo $listenerProcess | cut -d ' ' -f 2`
+
+echo 'Listener process found running at "'$listenerProcess'" with process (to stop) ID of '$processID'. Killing this process.'
+
+kill $processID
+

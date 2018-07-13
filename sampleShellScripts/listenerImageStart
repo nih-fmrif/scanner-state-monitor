@@ -1,0 +1,9 @@
+
+#!/bin/sh
+
+logOutput=$HOME/RTafni/tmp/dcmRxInfo.log
+
+$HOME/RTafni/bin/dcmListenerRT.py -h 192.168.2.3 -p 8080 -f $logOutput &
+
+tail -f $logOutput
+
