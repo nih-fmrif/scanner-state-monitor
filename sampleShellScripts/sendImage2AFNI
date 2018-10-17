@@ -1,7 +1,6 @@
-
 #!/bin/bash
 
-dataRoot="/data/data0/DICOM/"
+dataRoot="/home/data0/DICOM/"
 helpMsg="   Must give at least 1 argument - the root name of data being written in "$dataRoot
 
 if [ $# -eq 0 ] || [ $1 == "-h" ] || [ $1 == "--h" ] || [ $1 == "-help" ] || [ $1 == "--help" ]

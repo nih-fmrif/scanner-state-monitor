@@ -1,17 +1,14 @@
-
 #!/bin/bash
 
 export AFNI_REALTIME_Registration=3D:_realtime
 export   AFNI_REALTIME_Base_Image=2
 export        AFNI_REALTIME_Graph=Realtime
-export AFNI_REALTIME_MP_HOST_PORT=localhost:53214
-export     AFNI_REALTIME_SEND_VER=YES
-export   AFNI_REALTIME_SHOW_TIMES=YES
+export AFNI_REALTIME_MP_HOST_PORT=192.168.2.7:53214
 export    AFNI_REALTIME_Mask_Vals=ROI_means
 export     AFNI_REALTIME_Function=FIM
 
-dataRoot="/data/data0/rt/"
-helpMsg="   Must give at least 1 argument - the name of directory to be created in"$dataRoot
+dataRoot="/home/data0/rt/"
+helpMsg="   Must give at least 1 argument - the name of directory to be created in "$dataRoot
 
 if [ $# -eq 0 ] || [ $1 == "-h" ] || [ $1 == "--h" ] || [ $1 == "-help" ] || [ $1 == "--help" ]
 then
@@ -23,7 +20,7 @@ dataDir=$dataRoot$1
 
 if [ -d ${dataDir} ] || [ -f ${dataDir} ]
 then
-   echo $dataDir "already seems to exist.  Please pick another name."
+   echo $dataDir "already seems to exist.  Please pick another location."
    exit -1
 fi
 
@@ -31,7 +28,9 @@ echo "Data directory will be created in" $dataRoot "and will have path" $dataDir
 
 mkdir $dataDir
 cd $dataDir
-afni -rt # -yesplugouts                     \
+echo "Now starting AFNI in "`pwd`
+echo
+afni -rt -seehidden -yesplugouts                     \
      # -com "SWITCH_UNDERLAY epi_r1+orig"   \
      # -com "SWITCH_OVERLAY func_slim+orig" &
 
