@@ -1,3 +1,4 @@
+
 #!/bin/bash
 
 export AFNI_REALTIME_Registration=3D:_realtime
@@ -7,7 +8,7 @@ export AFNI_REALTIME_MP_HOST_PORT=192.168.2.7:53214
 export    AFNI_REALTIME_Mask_Vals=ROI_means
 export     AFNI_REALTIME_Function=FIM
 
-dataRoot="/home/data0/rt/"
+dataRoot="/data/data0/rt/"
 helpMsg="   Must give at least 1 argument - the name of directory to be created in "$dataRoot
 
 if [ $# -eq 0 ] || [ $1 == "-h" ] || [ $1 == "--h" ] || [ $1 == "-help" ] || [ $1 == "--help" ]
@@ -18,9 +19,10 @@ fi
 
 dataDir=$dataRoot$1
 
+# Comment out this if-fi block if testing with already existing (non-real-time) data.
 if [ -d ${dataDir} ] || [ -f ${dataDir} ]
 then
-   echo $dataDir "already seems to exist.  Please pick another location."
+   echo $dataDir "already seems to exist.  Please pick another name."
    exit -1
 fi
 

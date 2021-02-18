@@ -1,6 +1,7 @@
+
 #!/bin/bash
 
-dataRoot="/home/data0/DICOM/"
+dataRoot="/data/data0/DICOM/"
 helpMsg="   Must give at least 1 argument - the root name of data being written in "$dataRoot
 
 if [ $# -eq 0 ] || [ $1 == "-h" ] || [ $1 == "--h" ] || [ $1 == "-help" ] || [ $1 == "--help" ]
@@ -12,4 +13,7 @@ fi
 # plugout_drive -com "SETENV AFNI_REALTIME_Mask_Dset $maskset" -quit
 
 Dimon -rt -quit -infile_prefix $dataRoot$1
+
+# # Use the below when testing with already existing (i.e. non-real-time data)
+# Dimon -rt -quit -pause 2000 -infile_prefix $dataRoot$1
 
