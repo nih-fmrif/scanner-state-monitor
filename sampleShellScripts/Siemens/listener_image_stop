@@ -2,7 +2,7 @@
 #!/bin/sh
 
 # listenerProcess=`ps -ef | grep -i python | grep conda` # test for program that should not be running
-listenerProcess=`ps -ef | grep -i python | grep dcmListener`
+listenerProcess=`ps -ef | grep -i python | grep dcm_listener`
 
 if [ $? -eq '1' ]
 then

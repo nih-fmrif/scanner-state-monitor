@@ -3,7 +3,7 @@
 
 logOutput=/home/rtadmin/RTafni/tmp/dcmRxInfo.log
 
-/home/rtadmin/RTafni/bin/dcmListenerRT.py -h 192.168.2.5 -p 8111 -f $logOutput &
+/home/rtadmin/RTafni/bin/dcm_listener_RT.py -h 192.168.2.5 -p 8111 -f $logOutput &
 
 tail -f $logOutput
 
