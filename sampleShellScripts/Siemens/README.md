@@ -50,3 +50,14 @@ set and control AFNI's behavior while it is running.  The script also launches
 AFNI in "real-time" mode, so it is ready to receive data via it's real-time
 plugin.
 
+
+
+## Potential sources of information for the system for future functionality
+
+- Mount operational directory on the scanner's console PC on a Linux PC (via a
+Samba export), and parse the files in that directory to determine if any info
+about the scanner's state is present there.  This directory is already exported
+to the scanner's reconstruction computer, most likely in read-write mode, to
+facilitate scanner operation.  For the functionality desired here, a read-only
+export should suffice.
+
