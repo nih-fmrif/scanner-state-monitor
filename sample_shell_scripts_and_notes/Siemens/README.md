@@ -8,9 +8,9 @@ this feature on, please reach out to your Siemens research contact to obtain
 instructions as to how to do this.
 
 When activating this feature, the console is configured to write DICOM image
-data to a specified location, while simultaneously sending messages via
-TCP to specified IP address and port.  The location and IP can be local to
-the scanner console, or remote to the console, but accessible from it.  For
+data to a specified location, while simultaneously sending messages via TCP to
+a specified IP address and port.  The location and IP can be local to the
+scanner console, or remote to the console, but accessible from it.  For
 example, on FMRIF's scanners, the scanner is configured to export DICOM data
 to a network Samba share, exported from a linux computer, and mounted locally
 at:
