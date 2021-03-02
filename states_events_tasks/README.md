@@ -11,4 +11,29 @@ or the states it switches between.
 |    System start-up      |           TBD            |            TBD           |
 |     System  ready       |           TBD            |            TBD           |
 |    System shut-down     |           TBD            |            TBD           |
+| System idle (- patient) |           TBD            |            TBD           |
+| System idle (+ patient) |           TBD            |            TBD           |
+|      pre-scanning       |           TBD            |            TBD           |
+|    pre-scan failure     |           TBD            |            TBD           |
+|    pre-scan success     |           TBD            |            TBD           |
+|        scanning         |           TBD            |            TBD           |
+|      scan failure       |           TBD            |            TBD           |
+|      scan success       |           TBD            |            TBD           |
+|  reset system hardware  |           TBD            |            TBD           |
+
+
+
+## List of more specialized states to detect, or applications to trigger:
+
+1. Performing QA scans.
+
+1. Automatic capture of physiology data.
+
+1. Triggering other software coincident with data acquisition (e.g. for
+   neurofeedback).
+
+1. Custom reconstruction of data, with data either going back to scanner in a
+   standard vendor-recognized format (e.g. DICOMs on GE, pixel database on
+   Siemens), or sent to another application directly (e.g. 2D+z+t data to AFNI
+   via real-time channel).
 
