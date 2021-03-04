@@ -16,6 +16,8 @@ or the states it switches between.
 |      pre-scanning       |           TBD            |            TBD           |
 |    pre-scan failure     |           TBD            |            TBD           |
 |    pre-scan success     |           TBD            |            TBD           |
+|    scanner "prepped"    |           TBD            |            TBD           |
+|     scanner "paused"    |           TBD            |            TBD           |
 |        scanning         |           TBD            |            TBD           |
 |      scan failure       |           TBD            |            TBD           |
 |      scan success       |           TBD            |            TBD           |
@@ -27,7 +29,9 @@ or the states it switches between.
 
 1. Performing QA scans.
 
-1. Automatic capture of physiology data.
+1. Automatic capture of physiology data. BIOPAC 'integration'?
+
+1. Motion detection and alert user if motion > set threshold.
 
 1. Triggering other software coincident with data acquisition (e.g. for
    neurofeedback).
@@ -39,4 +43,13 @@ or the states it switches between.
 
 1. Drive actions based on pulse sequence/scan properties and/or parameter
    values (by reading "HEADER_POOL" on GE, and XProtocol on Siemens?).
+   Real-time access to TWIX?  Access at scanner "prepped" state.
+
+1. Adaptive experiments (e.g. staircases) - change/update acquisition/experiment
+   based on parameter estimation of parameters.
+
+1. In-session registration of partial brain volume data.  Grab images generated
+   by scanner, or potentially doing your own reconstruction.
+
+1. Detect and respond by acquisition-by-acquisition or TR-by-TR?
 
