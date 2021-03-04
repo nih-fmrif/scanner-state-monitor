@@ -37,3 +37,6 @@ or the states it switches between.
    Siemens), or sent to another application directly (e.g. 2D+z+t data to AFNI
    via real-time channel).
 
+1. Drive actions based on pulse sequence/scan properties and/or parameter
+   values (by reading "HEADER_POOL" on GE, and XProtocol on Siemens?).
+
