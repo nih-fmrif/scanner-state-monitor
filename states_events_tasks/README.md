@@ -29,7 +29,7 @@ or the states it switches between.
 
 1. Performing QA scans.
 
-1. Automatic capture of physiology data. BIOPAC 'integration'?
+1. Automatic capture of physiology data. BIOPAC 'integration' (FNIRS, GSR)?
 
 1. Motion detection and alert user if motion > set threshold.
 
@@ -52,4 +52,25 @@ or the states it switches between.
    by scanner, or potentially doing your own reconstruction.
 
 1. Detect and respond by acquisition-by-acquisition or TR-by-TR?
+
+1. Sync other "real-time" data to FMRIF Scientific database (soon, to be XNAT)
+   for data that is not part of DICOM (physio, log files, scanner calibration
+   files, NIFTI data, etc.)
+
+1. Integration with other hardware (e.g. trigger external cameras, hardware,
+   keyboards, response box, RS-232 and DB-9 signal monitoring and recording),
+   eye-tracker integration / triggering, EEG integration / triggering.
+
+1. At end of scan, all data should be in AFNI/NIFTI - allow QA and further
+   post-processing.
+
+1. Set up physical and logical access for plugging in users' computers to
+   allow their experiment to be run if integration.
+
+1. Complete dump/record of scan parameters for any given run or experiment.
+
+1. If available - access vendors' "peak detection" from physiological data,
+   and save.
+
+
 
