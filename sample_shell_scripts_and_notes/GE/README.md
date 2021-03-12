@@ -38,3 +38,58 @@ state on the secondary Linux PC and it would be a matter of parsing appropriate
 files for each vendor, or watching other locations or resources, to determine
 the state the scanner is in.
 
+
+
+## Sources of information for current real-time implementation on GE
+
+- System directories:
+
+   1. /usr/g/bin/
+
+   1. /usr/g/mrraw/ (#dir-raw)
+
+   1. /export/home1/sdc\_image\_pool/images
+
+   1. /usr/g/service/log/
+
+In [i] vendor and site pulse sequence binaries are installed.
+
+In [ii] - raw k-space and other potential data for reconstruction are written. Contains HEADER\_POOL.
+
+Directory [iii] contains DICOM data, in a directory tree structure, with format:
+
+   p????/e????/s????
+
+which represents patient index / exam index / series index.
+
+Directory [iv] contains a series of system log files that are parsed to determine the state the scanner is in.  Files of potential use in [iv] include:
+
+- coilid.log (log of active coils for a given session / scan)
+- review.out (a dump of values on the scanners interface, in a plain text
+  format)
+- rdbm\_log.out (log of a portion of the raw header for each acquisition)
+- scn.out - a general/'catch-all' log of events happening on the system.  In
+  DV26, the events listed here include:
+
+   + "beginNewExam" (should represet a new exam being started)
+   + "Save Series" (should be self explanatory)
+   + " series UID" (have to check)
+   + "Sending ready" (should be after successful pre-scan, when scanner is
+     "prepped")
+   + "downloadDone" (scanner parameters downloaded to sequencer hardware)
+   + "Send Image Install Request to TIR" (should be start of data acquisition)
+   + "exam\_path of image" (should indicate location where images are written
+     to)
+   + "Entry gotScanStopped" (should represent a scan being stopped by a
+     button press on the scaner)
+   + "EM\_HC\_STOP\_BUTTON\PRESS" (should represent a scan being stopped by the
+     emergency button press on the scaner)
+   + "Got scanStopped" (should represent successful completion of a scan) 
+   + "updateOnReconDone" (have to check)
+   + "Got reconStop" (have to check)
+   + "gotImgXfrDone" (have to check)
+   + "operator confirmed" (end of exam/session)
+   + "resetMGDStart" (reset of real-time scanner hardware initiated == "TPS
+     Reset" on GE)
+   + "resetMGDComplete" (reset of real-time scanner hardware completed)
+
