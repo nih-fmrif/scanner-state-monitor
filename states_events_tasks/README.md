@@ -72,5 +72,9 @@ or the states it switches between.
 1. If available - access vendors' "peak detection" from physiological data,
    and save.
 
-
+1. How to handle intricate "pre-scan" situations (reference scans for GE EPI
+   scans, NIH EPI sequence on Siemens with integrated FLASH reference scan,
+   CMRR multi-band EPI sequence).  Most likely all of these are caught as part
+   of the system's pre-scan.  Also potentially integrated EPI reference scans,
+   and EPI blip-up/blip-down corrections.
 
