@@ -1,11 +1,23 @@
 
 Set of scans run:
+
 - Localizer
 - 1.0 mm MP-RAGE (FreeSurfer parameters) - completed
 - 0.8 mm MP-RAGE - stopped
 - 0.8 mm MP-RAGE - completed
 - FMRI scan - stopped
 - FMRI scan - completed
+
+
+
+Possible 'hooks':
+
+- MSR_STARTED (for data acquisition start)
+- MSR_SCANNER_FINISHED, MSR_ACQ_FINISHED, MSR_MEAS_FINISHED - for end of scan?
+
+
+
+
 
 Tue Sep 07 10:27:58.487 SBM INFO: -->Patient registered
 Tue Sep 07 10:27:58.488 SBM INFO: Setting series block to 'inactive'
