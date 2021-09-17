@@ -26,12 +26,12 @@
      showgrid="false"
      units="px"
      inkscape:zoom="0.29857056"
-     inkscape:cx="1801.9191"
-     inkscape:cy="894.26097"
+     inkscape:cx="1775.1248"
+     inkscape:cy="947.84965"
      inkscape:window-width="1319"
      inkscape:window-height="790"
-     inkscape:window-x="570"
-     inkscape:window-y="90"
+     inkscape:window-x="1959"
+     inkscape:window-y="222"
      inkscape:window-maximized="0"
      inkscape:current-layer="layer1"
      fit-margin-top="0"
@@ -41,6 +41,20 @@
      showguides="true" />
   <defs
      id="defs2">
+    <marker
+       style="overflow:visible"
+       id="Arrow1Lstart"
+       refX="0.0"
+       refY="0.0"
+       orient="auto"
+       inkscape:stockid="Arrow1Lstart"
+       inkscape:isstock="true">
+      <path
+         transform="scale(0.8) translate(12.5,0)"
+         style="fill-rule:evenodd;fill:context-stroke;stroke:context-stroke;stroke-width:1.0pt"
+         d="M 0.0,0.0 L 5.0,-5.0 L -12.5,0.0 L 5.0,5.0 L 0.0,0.0 z "
+         id="path1673" />
+    </marker>
     <marker
        style="overflow:visible;"
        id="Arrow1Lend"
@@ -164,6 +178,20 @@
        y1="124.50532"
        x2="199.76254"
        y2="124.50532" />
+    <marker
+       style="overflow:visible"
+       id="Arrow1Lend-7"
+       refX="0"
+       refY="0"
+       orient="auto"
+       inkscape:stockid="Arrow1Lend"
+       inkscape:isstock="true">
+      <path
+         transform="matrix(-0.8,0,0,-0.8,-10,0)"
+         style="fill:context-stroke;fill-rule:evenodd;stroke:context-stroke;stroke-width:1pt"
+         d="M 0,0 5,-5 -12.5,0 5,5 Z"
+         id="path936-3" />
+    </marker>
   </defs>
   <g
      inkscape:label="Layer 1"
@@ -183,7 +211,7 @@
          rotate="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0">Scanner states and transitions</tspan></text>
     <path
        style="fill:none;fill-opacity:1;stroke:url(#linearGradient23341);stroke-width:0.75;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-       d="M 50.511511,100.13685 199.38754,99.250687 V 149.7622 H 50.511511 Z"
+       d="M 50.511511,100.13685 199.38754,100.13685 V 149.7622 H 50.511511 Z"
        id="path20955" />
     <text
        xml:space="preserve"
@@ -198,15 +226,15 @@
          y="126.72186">Scanner up and idle</tspan></text>
     <path
        style="fill:none;fill-opacity:1;stroke:url(#linearGradient57);stroke-width:0.746655;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-       d="M 321.23131,98.808718 468.78227,97.922555 V 148.43407 H 321.23131 Z"
+       d="M 321.23131,98.808718 468.78227,98.808718 V 148.43407 H 321.23131 Z"
        id="path20955-4" />
     <path
        style="fill:none;fill-opacity:1;stroke:url(#linearGradient58898);stroke-width:0.746655;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-       d="m 776.05853,206.03491 147.55096,-0.88617 v 50.51152 H 776.05853 Z"
+       d="m 776.05853,206.03491 147.55096,-0.00000 v 50.51152 H 776.05853 Z"
        id="path20955-4-5" />
     <path
        style="fill:none;fill-opacity:1;stroke:url(#linearGradient45743);stroke-width:0.806379;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-       d="M 589.9933,97.065245 762.29731,96.180131 V 146.63183 H 589.9933 Z"
+       d="M 589.9933,97.065245 762.29731,97.065245 V 146.63183 H 589.9933 Z"
        id="path20955-4-7" />
     <text
        xml:space="preserve"
@@ -351,8 +379,8 @@
          y="395.55707"
          id="tspan12259">user-stopped</tspan></text>
     <path
-       style="fill:none;stroke:#000000;stroke-width:0.75000002;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;stroke-miterlimit:4;stroke-dasharray:4.50000013,0.75000002;stroke-dashoffset:0;marker-end:url(#Arrow1Lend)"
-       d="m 850.72018,259.64689 v 140.01435 l -500.68427,0.88617 V 150.64836"
+       style="fill:none;stroke:#000000;stroke-width:0.75;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:4.5, 0.75;stroke-dashoffset:0;stroke-opacity:1;marker-end:url(#Arrow1Lend)"
+       d="M 850.72018,260.17606 V 400.19041 H 350.03591 V 151.17753"
        id="path24669" />
     <path
        style="fill:none;stroke:#000000;stroke-width:0.75000002;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;stroke-miterlimit:4;stroke-dasharray:2.25000006, 0.75000002;stroke-dashoffset:0;marker-end:url(#Arrow1Lend)"
@@ -376,7 +404,7 @@
          id="tspan5486-2">patient / object</tspan></text>
     <path
        style="fill:none;fill-opacity:1;stroke:url(#linearGradient31086);stroke-width:0.868919;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-       d="m 483.68453,207.89737 193.50952,-0.91511 v 52.16138 H 483.68453 Z"
+       d="m 483.68453,207.89737 193.50952,-0.00000 v 52.16138 H 483.68453 Z"
        id="path20955-4-7-8" />
     <path
        style="fill:none;stroke:#000000;stroke-width:0.817489;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;marker-end:url(#Arrow1Lend)"
@@ -445,7 +473,7 @@
        id="path62407" />
     <path
        style="fill:none;stroke:#000000;stroke-width:0.75;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:0.75, 0.75;stroke-dashoffset:0;stroke-opacity:1;marker-end:url(#Arrow1Lend)"
-       d="m 570.91422,262.31803 v 59.37319 l 140.01435,0.88617 V 247.2532 h -26.58498"
+       d="m 570.91422,262.31803 v 59.37319 l 140.01435,0.00000 V 247.2532 h -26.58498"
        id="path67486" />
     <text
        xml:space="preserve"
@@ -467,7 +495,7 @@
          style="text-align:center;text-anchor:middle">failure</tspan></text>
     <path
        style="fill:none;fill-opacity:1;stroke:url(#linearGradient74323);stroke-width:0.746655;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-       d="m 147.76623,209.57958 147.55096,-0.88617 v 50.51152 H 147.76623 Z"
+       d="m 147.76623,209.57958 147.55096,-0.00000 v 50.51152 H 147.76623 Z"
        id="path20955-4-3" />
     <text
        xml:space="preserve"
@@ -488,7 +516,25 @@
          id="tspan74591">Scanner</tspan></text>
     <path
        style="fill:none;stroke:#000000;stroke-width:0.75;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;stroke-miterlimit:4;stroke-dasharray:none;marker-end:url(#Arrow1Lend)"
-       d="M 570.91421,321.69121 250.78522,319.90622 V 262.30538"
+       d="M 570.91421,321.69121 250.78522,321.69121 V 262.30538"
        id="path92842" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:0.448329;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;marker-end:url(#Arrow1Lend-7);marker-start:url(#Arrow1Lstart)"
+       d="m 166.12753,154.6327 53.59464,48.37711"
+       id="path31122-7" />
+    <ellipse
+       style="stroke-width:0.297214"
+       id="path2013"
+       cx="349.83847"
+       cy="400.54108"
+       rx="4.4308324"
+       ry="3.723171" />
+    <ellipse
+       style="stroke-width:0.297214"
+       id="path2013-3"
+       cx="571.22064"
+       cy="321.67856"
+       rx="4.4308324"
+       ry="3.723171" />
   </g>
 </svg>
