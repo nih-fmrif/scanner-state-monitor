@@ -25,6 +25,13 @@ or the states it switches between.
 
 
 
+A potential state diagram for typical MR scanner operation might look something
+like this:
+
+![alt text](./real-time-control-schematic.svg "MR-scanner states and transitions")
+
+
+
 ## List of more specialized states to detect, or applications to trigger:
 
 1. Performing QA scans.
