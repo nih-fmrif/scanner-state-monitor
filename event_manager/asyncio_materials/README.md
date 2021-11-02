@@ -6,7 +6,7 @@ Links for documentation and tutorials:
 - Python's API documentation for asyncio [here](https://docs.python.org/3/library/asyncio-eventloop.html)
   and [here](https://docs.python.org/3.6/library/asyncio-eventloop.html).
 
-- asyncio's [documentation page](https://asyncio.readthedocs.io/en/latest/hello_world.html).
+- asyncio's [documentation page](https://docs.python.org/3/library/asyncio.html).
 
 - Tutorial [number 1](https://tutorialedge.net/python/concurrency/asyncio-event-loops-tutorial/).
 
