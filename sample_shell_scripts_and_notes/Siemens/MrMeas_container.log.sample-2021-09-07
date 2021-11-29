@@ -10,11 +10,14 @@ Set of scans run:
 
 
 
+
+
 Possible 'hooks':
 
 - MSR_STARTED (for data acquisition start)
 - MSR_SCANNER_FINISHED, MSR_ACQ_FINISHED, MSR_MEAS_FINISHED - for end of scan
 - EVENT_PATIENT_DEREGISTERED - for end of session
+- "Patient registered" - for start and end of session, but without the previous flag for starting session.
 
 
 
