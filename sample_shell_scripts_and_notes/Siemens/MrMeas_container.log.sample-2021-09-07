@@ -18,6 +18,10 @@ Possible 'hooks':
 - MSR_SCANNER_FINISHED, MSR_ACQ_FINISHED, MSR_MEAS_FINISHED - for end of scan
 - EVENT_PATIENT_DEREGISTERED - for end of session
 - "Patient registered" - for start and end of session, but without the previous flag for starting session.
+- "prepareSequence: Sequence" indcates the start of acquisition.  Have to ensure sequence running is either
+  "SiemensSeq" or "CustomerSeq", not "AdjustSeq".  Note - this line (i.e. with the "prepareSequence: Sequence"
+  string) only shows for sequences that have a preparation routine.  Mini-FLASH doesn't seem to, so does NOT
+  generate this entry when it is run.
 
 
 
@@ -3804,3 +3808,4 @@ Tue Sep 07 10:54:45.453 SBM INFO: Setting series block to 'inactive'
 Tue Sep 07 10:54:45.454 SBM INFO: Current table pos from PTABProxy: 0, 0, -1091
 Tue Sep 07 10:54:45.454 SBM INFO: Creating a new series block via MrFrameOfReference.updateGlobalFOR(0,0,0).
 Tue Sep 07 10:54:45.455 SBM INFO: <--Patient registered
+
