@@ -40,7 +40,7 @@ class log_parser():
 
 
 
-   def find_event (scanner_log):
+   def find_event (event_to_find, log_to_search):
 
       """
          Parse through logs passed to this routine
@@ -48,23 +48,37 @@ class log_parser():
          read in from scanner's log files).
       """
 
-      for current_line in scanner_log:
+      for current_line in log_to_search:
 
          # first determine if the line contains any
          # event of interest.
 
-         # if an event *is* in current_line
-         if any(this_event in current_line for this_event in scanner_events):
+         # # if an event *is* in current_line
+         # if any(this_event in current_line for this_event in scanner_events):
 
-            # get the event itself, by finding intersection of set of events
-            # possible, and the text in the line.
-            # have to remove parentheses to match to array of events.
-            current_line_elements   = current_line.replace("(","").replace(")","").split()
-            current_event           = set(current_line_elements) & set(scanner_events)
+            # # get the event itself, by finding intersection of set of events
+            # # possible, and the text in the line.
+            # # have to remove parentheses to match to array of events.
+            # current_line_elements   = current_line.replace("(","").replace(")","").split()
+            # current_event           = set(current_line_elements) & set(scanner_events)
+
+         # slightly modify code to search for a specific event, versus searching
+         # over all possible events, as was done above
+         if (event_to_find in current_line):
 
             # then get the event's date and time.
             this_event_date         = event_date.search(current_line)
             this_event_time         = event_time.search(current_line)
 
-            print ("Event %s happened at date: %s, time: %s" % (current_event, this_event_date.group(), this_event_time.group()))
+            print ("Event %s happened at date: %s, time: %s" % (event_to_find, this_event_date.group(), this_event_time.group()))
+
+            # return (event_to_find, this_event_date.group(), this_event_time.group())
+
+         else:
+
+            # Have to handle error for event being searched for not in
+            # list of events.
+
+            print ("Event %s not found!" % event_to_find)
+            # pass
 
