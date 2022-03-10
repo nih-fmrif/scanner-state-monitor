@@ -9,7 +9,7 @@ import      re
 
 
 
-class log_parser():
+class event_catcher():
 
    """
       Parser of scanner log files to catch events,
@@ -21,19 +21,29 @@ class log_parser():
    def __init__(self, scanner_vendor='siemens', platform_version='ve11c'):
 
       """
-         Nothing currently implemented for init.
-         Keep in mind to catch scanner vendor, and
-         possibly platform version here, as entry
-         point for more specific implementations.
+         Right now, this is entry point to general object to parse data from the
+         scanners.  However, not sure if this will be a general entry point that
+         will 'hand-off' to objects to deal with the different scanner vendors,
+         and vendor-specific implementations, or if this object itself will be
+         particular to a vendor, and the create corresponding objects for other
+         vendors.
+
+         Start with the former case (general object, hand off to vendor specific
+         within here).  If it stays this way, change name of module to reflect
+         this.
       """
 
-      if (scanner_vendor == 'siemens') and (platform_version == 've11c'):
-         self.event_date      = re.compile(r'\d{4}-\d{2}-\d{2}')
-         self.event_time      = re.compile(r'\d{2}:\d{2}:\d{2}.\d{3}')
+      # Since we are looking for order of events to determine what the scanner
+      # is doing, and what state it is in, set up regular expression parsers to
+      # get the date and time, and set up list of events to search for.
+      if (scanner_vendor == 'siemens'):
+         if (platform_version == 've11c'):
+            self.event_date_00   = re.compile(r'\d{4}-\d{2}-\d{2}')
+            self.event_time_00   = re.compile(r'\d{2}:\d{2}:\d{2}.\d{3}')
 
-         self.scanner_events  = ['MSR_OK', 'MSR_STARTED', 'MSR_SCANNER_FINISHED',
-                                 'MSR_ACQ_FINISHED', 'MSR_MEAS_FINISHED',
-                                 'EVENT_PATIENT_DEREGISTERED']
+            self.scanner_events  = ['MSR_OK', 'MSR_STARTED', 'MSR_SCANNER_FINISHED',
+                                    'MSR_ACQ_FINISHED', 'MSR_MEAS_FINISHED',
+                                    'EVENT_PATIENT_DEREGISTERED']
 
 
 
@@ -62,8 +72,8 @@ class log_parser():
             if (event_to_find in current_line):
 
                # If it does, then get the event's date and time.
-               this_event_date         = self.event_date.search(current_line)
-               this_event_time         = self.event_time.search(current_line)
+               this_event_date         = self.event_date_00.search(current_line)
+               this_event_time         = self.event_time_00.search(current_line)
 
                print ("Event %s happened at date: %s, time: %s" % (event_to_find, this_event_date.group(), this_event_time.group()))
 

@@ -6,7 +6,7 @@ import siemens_handler
 with open ('MrMeas_container.log.sample-2021-09-07', 'r') as raw_log:
    log_lines = raw_log.readlines()
 
-sh = siemens_handler.log_parser()
+sh = siemens_handler.event_catcher()
 
 sh.find_event('MSR_OK',                      log_lines[30:])
 sh.find_event('MSR_STARTED',                 log_lines[30:])
