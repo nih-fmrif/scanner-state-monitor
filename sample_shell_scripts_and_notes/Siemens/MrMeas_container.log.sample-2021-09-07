@@ -12,6 +12,7 @@ Set of scans run:
 
 
 
+
 Possible 'hooks':
 
 - MSR_STARTED (for data acquisition start)
@@ -22,6 +23,7 @@ Possible 'hooks':
   "SiemensSeq" or "CustomerSeq", not "AdjustSeq".  Note - this line (i.e. with the "prepareSequence: Sequence"
   string) only shows for sequences that have a preparation routine.  Mini-FLASH doesn't seem to, so does NOT
   generate this entry when it is run.
+
 
 
 

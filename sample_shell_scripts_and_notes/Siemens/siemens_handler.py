@@ -38,12 +38,19 @@ class event_catcher():
       # get the date and time, and set up list of events to search for.
       if (scanner_vendor == 'siemens'):
          if (platform_version == 've11c'):
-            self.event_date_00   = re.compile(r'\d{4}-\d{2}-\d{2}')
-            self.event_time_00   = re.compile(r'\d{2}:\d{2}:\d{2}.\d{3}')
+            self.event_date_00   = re.compile(r'\d{4}-\d{2}-\d{2}')        # date format: yyyy-mm-dd
+            self.event_time_00   = re.compile(r'\d{2}:\d{2}:\d{2}.\d{3}')  # time format: HH:MM:SS.milliseconds
+            self.event_date_01   = re.compile(r'\D{3} \D{3} \d{2}')        # date format: DOW MON dd (DOW == day of the week,
+                                                                           #                          MON == month,
+                                                                           #                          dd  == day in month)
 
-            self.scanner_events  = ['MSR_OK', 'MSR_STARTED', 'MSR_SCANNER_FINISHED',
-                                    'MSR_ACQ_FINISHED', 'MSR_MEAS_FINISHED',
-                                    'EVENT_PATIENT_DEREGISTERED']
+            self.scanner_events  = ['MSR_OK',
+                                    'MSR_STARTED',
+                                    'MSR_SCANNER_FINISHED',
+                                    'MSR_ACQ_FINISHED',
+                                    'MSR_MEAS_FINISHED',
+                                    'Patient registered',                  # Patient registered and deregistered
+                                    'EVENT_PATIENT_DEREGISTERED']          # Patient deregistered only
 
 
 
@@ -69,10 +76,16 @@ class event_catcher():
          # Make sure we are dealing with event we can handle
          if (event_to_find in self.scanner_events):
             # Then determine if the line contains the event of interest.
+
+            if (event_to_find == 'Patient registered'):
+               event_date_current = self.event_date_01
+            else:
+               event_date_current = self.event_date_00
+
             if (event_to_find in current_line):
 
                # If it does, then get the event's date and time.
-               this_event_date         = self.event_date_00.search(current_line)
+               this_event_date         = event_date_current.search(current_line)
                this_event_time         = self.event_time_00.search(current_line)
 
                print ("Event %s happened at date: %s, time: %s" % (event_to_find, this_event_date.group(), this_event_time.group()))
