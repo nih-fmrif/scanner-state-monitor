@@ -101,7 +101,7 @@ async def consume(queue: asyncio.Queue) -> None:
 if __name__ == "__main__":
 
    # reading logging location from environment from account running this.
-   scanner_log_dir = os.getenv('MR_SCANNER_LOG_DIR')
+   scanner_log_dir = os.getenv('MR_SCANNER_LOG')
    loop = asyncio.get_event_loop()
    queue = asyncio.Queue(loop=loop)
 

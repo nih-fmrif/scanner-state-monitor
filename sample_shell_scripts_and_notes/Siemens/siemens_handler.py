@@ -62,7 +62,12 @@ class event_catcher():
          read in from scanner's log files).
       """
 
-      for current_line in log_to_search:
+      # Reverse order of log, so events that are recorded towards the end/bottom of the log
+      # (i.e. later in time) show up first in this loop.  We want to catch the last/latest
+      # occurence of each event.
+      reversed_log = log_to_search[-1:0:-1]
+
+      for current_line in reversed_log:
 
          # # If any event is in current_line - capture and print.
          # if any(this_event in current_line for this_event in self.scanner_events):
@@ -88,15 +93,15 @@ class event_catcher():
                this_event_date         = event_date_current.search(current_line)
                this_event_time         = self.event_time_00.search(current_line)
 
-               print ("Event %s happened at date: %s, time: %s" % (event_to_find, this_event_date.group(), this_event_time.group()))
+               print ("Event %27s happened at date: %s, time: %s" % (event_to_find, this_event_date.group(), this_event_time.group()))
 
-               # return (event_to_find, this_event_date.group(), this_event_time.group())
+               return (event_to_find, this_event_date.group(), this_event_time.group())
 
          else:
 
             # Have to handle error for event being searched for not in list
             # of events.
 
-            print ("Event %s not in list of possible events!" % event_to_find)
+            print ("Event %27s not in list of possible events!" % event_to_find)
             break
 
