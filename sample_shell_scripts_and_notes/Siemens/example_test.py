@@ -27,3 +27,6 @@ sh.find_event('EVENT_PATIENT_DEREGISTERED',  log_lines)
 # Example of event that should NOT be in the logs
 sh.find_event('EVENT_PATIENT_REGISTERED',    log_lines)
 
+# Now, find last event of interest in log.
+sh.find_most_recent_event (log_lines)
+

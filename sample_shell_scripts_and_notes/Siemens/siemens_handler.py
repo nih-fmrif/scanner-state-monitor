@@ -103,5 +103,43 @@ class event_catcher():
             # of events.
 
             print ("Event %27s not in list of possible events!" % event_to_find)
-            break
+            return (None, None, None)
+
+      # Handle event being valid, but not found at all in log.
+
+      print ("Event %27s not found in log." % (event_to_find))
+
+      return (event_to_find, None, None)
+
+
+
+   def find_most_recent_event (self, log_to_search):
+
+      """
+         Find last / most recent event in the scanner's log files).
+      """
+
+      # Reverse order of log, as above.
+      reversed_log = log_to_search[-1:0:-1]
+
+      for current_line in reversed_log:
+
+         if any (this_event in current_line for this_event in self.scanner_events):
+
+            event_to_find = [current_event for current_event in self.scanner_events if current_event in current_line][0]
+
+            print ("Workng on event %27s" % event_to_find)
+
+            if (event_to_find == 'Patient registered'):
+               event_date_current = self.event_date_01
+            else:
+               event_date_current = self.event_date_00
+
+            # If it does, then get the event's date and time.
+            this_event_date         = event_date_current.search(current_line)
+            this_event_time         = self.event_time_00.search(current_line)
+
+            print ("Last dectected event, %27s, happened at date: %s, time: %s" % (event_to_find, this_event_date.group(), this_event_time.group()))
+
+            return (event_to_find, this_event_date.group(), this_event_time.group())
 
