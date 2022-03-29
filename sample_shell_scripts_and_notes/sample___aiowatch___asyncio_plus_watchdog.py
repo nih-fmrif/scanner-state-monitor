@@ -13,7 +13,7 @@
 
 import   asyncio
 
-import   time, os
+import   time, os, re, sys
 
 from     pathlib                    import Path
 from     typing                     import Optional
@@ -21,6 +21,9 @@ from     typing                     import Optional
 from     watchdog.events            import FileSystemEvent, FileSystemEventHandler, LoggingEventHandler, PatternMatchingEventHandler
 from     watchdog.observers         import Observer
 from     watchdog.observers.polling import PollingObserver
+
+sys.path.insert(0, os.path.abspath('.'))
+from     Siemens                    import siemens_handler
 
 
 
@@ -31,6 +34,8 @@ class _EventHandler(FileSystemEventHandler):
       self._loop = loop
       self._queue = queue
       super(*args, **kwargs)
+
+      self.scanner_event_detector = siemens_handler.event_catcher()
 
    def on_created(self, event: FileSystemEvent) -> None:
       self._loop.call_soon_threadsafe(self._queue.put_nowait, event)
@@ -47,6 +52,11 @@ class _EventHandler(FileSystemEventHandler):
    def on_modified(self, event: FileSystemEvent) -> None:
       self._loop.call_soon_threadsafe(self._queue.put_nowait, event)
       print("on_modified", event.src_path)
+
+      with open (os.getenv('MRI_SCANNER_LOG'), 'r') as raw_log:
+         log_lines = raw_log.readlines()
+
+      self.scanner_event_detector.find_most_recent_event (log_lines)
 
    def on_moved(self, event: FileSystemEvent) -> None:
       self._loop.call_soon_threadsafe(self._queue.put_nowait, event)
@@ -101,7 +111,7 @@ async def consume(queue: asyncio.Queue) -> None:
 if __name__ == "__main__":
 
    # reading logging location from environment from account running this.
-   scanner_log_dir = os.getenv('MR_SCANNER_LOG')
+   scanner_log_dir = os.getenv('MRI_SCANNER_LOG')
    loop = asyncio.get_event_loop()
    queue = asyncio.Queue(loop=loop)
 
