@@ -136,10 +136,14 @@ class event_catcher():
                event_date_current = self.event_date_00
 
             # If it does, then get the event's date and time.
-            this_event_date         = event_date_current.search(current_line)
-            this_event_time         = self.event_time_00.search(current_line)
+            try:
+               this_event_date         = event_date_current.search(current_line)
+               this_event_time         = self.event_time_00.search(current_line)
 
-            print ("Last dectected event, %27s, happened at date: %s, time: %s" % (event_to_find, this_event_date.group(), this_event_time.group()))
+               print ("Last dectected event, %27s, happened at date: %s, time: %s" % (event_to_find, this_event_date.group(), this_event_time.group()))
 
-            return (event_to_find, this_event_date.group(), this_event_time.group())
+               return (event_to_find, this_event_date.group(), this_event_time.group())
+            except AttributeError:
+
+               print ("Log line not properly formed. Move to next, properly written, event.")
 
