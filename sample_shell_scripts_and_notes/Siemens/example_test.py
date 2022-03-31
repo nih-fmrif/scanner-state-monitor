@@ -1,7 +1,7 @@
 
 import re, os, sys
 sys.path.insert(0, os.path.abspath('.'))
-import siemens_handler
+import handler
 
 try:
    os.getenv('MRI_SCANNER_LOG')
@@ -11,7 +11,7 @@ except:
    print ('\n   !!! Please define the environment variable MRI_SCANNER_LOG !!!\n')
    sys.exit(1)
 
-sh = siemens_handler.event_catcher()
+sh = handler.event_catcher()
 
 # sh.find_event('Patient registered',          log_lines[30:]) - no longer need to offset read from
 #                                                                example as now the log parser reads

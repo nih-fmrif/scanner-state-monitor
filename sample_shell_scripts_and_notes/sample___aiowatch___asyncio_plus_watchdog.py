@@ -23,7 +23,8 @@ from     watchdog.observers         import Observer
 from     watchdog.observers.polling import PollingObserver
 
 sys.path.insert(0, os.path.abspath('.'))
-from     Siemens                    import siemens_handler
+import   Siemens
+import   GE
 
 
 
@@ -35,7 +36,7 @@ class _EventHandler(FileSystemEventHandler):
       self._queue = queue
       super(*args, **kwargs)
 
-      self.scanner_event_detector = siemens_handler.event_catcher()
+      self.scanner_event_detector = Siemens.handler.event_catcher()
 
    def on_created(self, event: FileSystemEvent) -> None:
       self._loop.call_soon_threadsafe(self._queue.put_nowait, event)
