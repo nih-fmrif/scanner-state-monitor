@@ -38,8 +38,16 @@ class event_catcher():
       # get the date and time, and set up list of events to search for.
       if (scanner_vendor == 'ge'):
          if (platform_version == 'dv26.0_r02'):
-            # self.event_date_00   = re.compile(r'\d{4}-\d{2}-\d{2}')        # date format: yyyy-mm-dd
-            # self.event_time_00   = re.compile(r'\d{2}:\d{2}:\d{2}.\d{3}')  # time format: HH:MM:SS.milliseconds
+
+            self.log_files = ['scn.out.0.gz', 'scn.out.1.gz', 'scn.out.2.gz',
+                              'scn.out.3.gz', 'scn.out.4.gz', 'scn.out.5.gz',
+                              'scn.out.6.gz', 'scn.out.7.gz', 'scn.out.8.gz',
+                              'scn.out.9.gz', 'scn.out']
+
+            self.log_files_dict = dict.fromkeys(self.log_files)
+
+            self.event_date_00   = re.compile(r'\s{3} \s{3} \d{2} \d{4}')  # date format: Day-of-week Month Day-of-month YYYY
+            self.event_time_00   = re.compile(r'\d{2}:\d{2}:\d{2}.\d{6}')  # time format: HH:MM:SS.microeconds
 
             self.scanner_events  = ['Calling startSession',                # Start of session / patient registered.
                                     'Save Series',                         # As named - probably for when a series' parameters and prescription have been saved for scanning.
@@ -58,7 +66,7 @@ class event_catcher():
                                     # 'stopvmx',                             # software shutdown (endsession)     - this is a running process (from ps) not from sysytem log
                                     'resetMGDStart',                       # Start reset of hardware sequencers (TPS reset).
                                     'resetMGDComplete',                    # Complete reset of hardware sequencers.
-                                    'operator confirmed',                  # End of session / scanning complete / patient closed.
+                                    'operator confirmed']                  # End of session / scanning complete / patient closed.
 
 
 
@@ -75,7 +83,16 @@ class event_catcher():
       # occurence of each event.
       reversed_log = log_to_search[-1:0:-1]
 
-      for current_line in reversed_log:
+      for this_line in reversed_log:
+
+         try:
+            current_line = this_line.decode('utf-8').strip()
+         except UnicodeDecodeError:
+            # print ("Cannot decode %s" % this_line)
+            continue
+
+         if (self.event_date_00.search(current_line) != None):
+            this_event_date = self.event_date_00.search(current_line)
 
          # Make sure we are dealing with event we can handle
          if (event_to_find in self.scanner_events):
@@ -84,55 +101,27 @@ class event_catcher():
             if (event_to_find in current_line):
 
                # If it does, then get the event's date and time.
-               this_event_date         = self.event_date_00.search(current_line)
                this_event_time         = self.event_time_00.search(current_line)
 
-               print ("Event %27s happened at date: %s, time: %s" % (event_to_find, this_event_date.group(), this_event_time.group()))
+               # print ("Event %45s happened at date: %s, time: %s" % (event_to_find, this_event_date.group(), this_event_time.group()))
 
-               return (event_to_find, this_event_date.group(), this_event_time.group())
+               # return (event_to_find, this_event_date.group(), this_event_time.group())
+
+               print ("Event %45s happened at time: %s" % (event_to_find, this_event_time.group()))
+
+               return (event_to_find, None, this_event_time.group())
 
          else:
 
             # Have to handle error for event being searched for not in list
             # of events.
 
-            print ("Event %27s not in list of possible events!" % event_to_find)
+            print ("Event %45s not in list of possible events!" % event_to_find)
             return (None, None, None)
 
       # Handle event being valid, but not found at all in log.
 
-      print ("Event %27s not found in log." % (event_to_find))
+      print ("Event %45s not found in log." % (event_to_find))
 
       return (event_to_find, None, None)
-
-
-
-   def find_most_recent_event (self, log_to_search):
-
-      """
-         Find last / most recent event in the scanner's log files).
-      """
-
-      # Reverse order of log, as above.
-      reversed_log = log_to_search[-1:0:-1]
-
-      for current_line in reversed_log:
-
-         if any (this_event in current_line for this_event in self.scanner_events):
-
-            event_to_find = [current_event for current_event in self.scanner_events if current_event in current_line][0]
-
-            print ("Workng on event %27s" % event_to_find)
-
-            # If it does, then get the event's date and time.
-            try:
-               this_event_date         = self.event_date_00.search(current_line)
-               this_event_time         = self.event_time_00.search(current_line)
-
-               print ("Last dectected event, %27s, happened at date: %s, time: %s" % (event_to_find, this_event_date.group(), this_event_time.group()))
-
-               return (event_to_find, this_event_date.group(), this_event_time.group())
-            except AttributeError:
-
-               print ("Log line not properly formed. Move to next, properly written, event.")
 
