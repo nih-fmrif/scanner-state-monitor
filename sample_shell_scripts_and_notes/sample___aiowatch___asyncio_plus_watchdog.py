@@ -112,7 +112,13 @@ async def consume(queue: asyncio.Queue) -> None:
 if __name__ == "__main__":
 
    # reading logging location from environment from account running this.
-   scanner_log_dir = os.getenv('MRI_SCANNER_LOG')
+   try:
+      os.environ['MRI_SCANNER_LOG']
+      scanner_log_dir = os.getenv('MRI_SCANNER_LOG')
+   except:
+      print ('\n   !!! Please define the environment variable MRI_SCANNER_LOG !!!\n')
+      sys.exit(1)
+
    loop = asyncio.get_event_loop()
    queue = asyncio.Queue(loop=loop)
 
