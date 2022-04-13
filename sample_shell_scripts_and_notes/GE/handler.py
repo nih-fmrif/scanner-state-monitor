@@ -44,7 +44,7 @@ class event_catcher():
                               'scn.out.6.gz', 'scn.out.7.gz', 'scn.out.8.gz',
                               'scn.out.9.gz', 'scn.out']
 
-            self.log_files_dict = dict.fromkeys(self.log_files)
+            self.log_files_dict  = dict.fromkeys(self.log_files)
 
             self.event_date_00   = re.compile(r'\s{3} \s{3} \d{2} \d{4}')  # date format: Day-of-week Month Day-of-month YYYY
             self.event_time_00   = re.compile(r'\d{2}:\d{2}:\d{2}.\d{6}')  # time format: HH:MM:SS.microeconds
@@ -67,6 +67,38 @@ class event_catcher():
                                     'resetMGDStart',                       # Start reset of hardware sequencers (TPS reset).
                                     'resetMGDComplete',                    # Complete reset of hardware sequencers.
                                     'operator confirmed']                  # End of session / scanning complete / patient closed.
+
+            self.scanner_events_dict = dict.fromkeys(self.scanner_events)
+
+
+
+   def sort_dict (self, dictionary_to_sort,
+                        sort_by = 'value',
+                        sort_reverse_time_order = False):
+
+      """
+         This routine will take a dictionary, where we expect the 'value' of
+         each key-value pair to be a date/time element.  This routine will
+         then sort on time - earliest to latest, or latest-to-earliest can be
+         chosen by setting 'sort_reverse_time_order' to be False or True,
+         respectively.
+
+         The option to sort on dictionary keys is also retained, by setting
+         the value of the 'sort_by' argument to 'key'.  However, this is not
+         expected to be heavily used.
+
+         This routine will return an ordered ascending or descending list of
+         key-value pairs.
+      """
+
+      if (sort_by == 'key'):
+         index_to_sort_on = 0
+      else:
+         index_to_sort_on = 1
+
+      return sorted(dictionary_to_sort.items(),
+                    key = lambda x:x[index_to_sort_on],
+                    reverse = sort_reverse_time_order)
 
 
 
