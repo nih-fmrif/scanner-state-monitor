@@ -10,9 +10,8 @@ gh = handler.event_catcher()
 for each_file in gh.log_files_dict.keys():
    gh.log_files_dict[each_file] = os.path.getmtime(os.getenv('MRI_SCANNER_LOG') + '/' + each_file)
 
-# print (gh.log_files_dict)
+log_files_time_sorted = gh.sort_dict(gh.log_files_dict)
 
-log_files_time_sorted = sorted(gh.log_files_dict.items(), key = lambda x:x[1], reverse = False)
 
 for each_file in log_files_time_sorted:
    print (each_file)
