@@ -20,9 +20,16 @@ log_files_time_sorted = gh.sort_dict(gh.log_files_dict)
 
 log_lines = []
 
-for each_file in log_files_time_sorted:
+# For initial implementation, try reading "just" the last / latest 3
+# log files only (for performance reasons).  I know that sometimes,
+# the most current log files lack all events, and sometimes even the
+# explicit current date entry.  So try this for now, till a better /
+# more efficient way is developed to parse through more of the logs.
 
-   file_name = each_file[0]
+for each_file in log_files_time_sorted[-3:]:
+
+   file_name = each_file[0] # i.e. the same of the file. [1] is its
+                            # modification time.
    file_path = os.getenv('MRI_SCANNER_LOG') + '/' + file_name
 
    if ("gz" in file_name):
@@ -36,13 +43,17 @@ for each_file in log_files_time_sorted:
          # this_file_lines = raw_log.readlines()
       log_file_open_function = open
 
+   # Use the "list.extend()" method here, to add / stack the entries
+   # from each log file together, into one LARGE list of log entries.
+   # If the more common "list.append()" is used, then the whole list
+   # of entries 
    with log_file_open_function (file_path, mode='rb') as raw_log:
        this_file_lines = raw_log.readlines()
    log_lines.extend(this_file_lines)
 
 print ("Total numnber of lines in log is %d" % len(log_lines))
 
-print (log_lines[999999])
+print (log_lines[999])
 
 gh.find_event('Calling startSession',              log_lines)
 gh.find_event('Save Series',                       log_lines)
