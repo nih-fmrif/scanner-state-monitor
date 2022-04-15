@@ -5,6 +5,12 @@ import handler
 
 
 
+try:
+   os.getenv('MRI_SCANNER_LOG')
+except:
+   print ('\n   !!! Please define the environment variable MRI_SCANNER_LOG !!!\n')
+   sys.exit(1)
+
 gh = handler.event_catcher()
 
 for each_file in gh.log_files_dict.keys():
@@ -12,17 +18,31 @@ for each_file in gh.log_files_dict.keys():
 
 log_files_time_sorted = gh.sort_dict(gh.log_files_dict)
 
+log_lines = []
 
 for each_file in log_files_time_sorted:
-   print (each_file)
 
-try:
-   with open (os.getenv('MRI_SCANNER_LOG'), 'rb') as raw_log:
-   # with gzip.open (os.getenv('MRI_SCANNER_LOG'), mode='rb') as raw_log:  # for compressed log files
-      log_lines = raw_log.readlines()
-except:
-   print ('\n   !!! Please define the environment variable MRI_SCANNER_LOG !!!\n')
-   sys.exit(1)
+   file_name = each_file[0]
+   file_path = os.getenv('MRI_SCANNER_LOG') + '/' + file_name
+
+   if ("gz" in file_name):
+      print ("Prepare for reading   compressed file: %s" % file_name)
+      # with gzip.open (file_path, mode='rb') as raw_log:
+         # this_file_lines = raw_log.readlines()
+      log_file_open_function = gzip.open
+   else:
+      print ("Prepare for reading uncompressed file: %s" % file_name)
+      # with open (file_path, mode='rb') as raw_log:
+         # this_file_lines = raw_log.readlines()
+      log_file_open_function = open
+
+   with log_file_open_function (file_path, mode='rb') as raw_log:
+       this_file_lines = raw_log.readlines()
+   log_lines.extend(this_file_lines)
+
+print ("Total numnber of lines in log is %d" % len(log_lines))
+
+print (log_lines[999999])
 
 gh.find_event('Calling startSession',              log_lines)
 gh.find_event('Save Series',                       log_lines)
