@@ -52,6 +52,8 @@ class event_catcher():
                                     'Patient registered',                  # Patient registered and deregistered
                                     'EVENT_PATIENT_DEREGISTERED']          # Patient deregistered only
 
+            self.scanner_events_dict = dict.fromkeys(self.scanner_events)
+
 
 
    def find_event (self, event_to_find, log_to_search):
@@ -146,4 +148,46 @@ class event_catcher():
             except AttributeError:
 
                print ("Log line not properly formed. Move to next, properly written, event.")
+
+
+
+   def generate_dict_of_scanner_events (self, log_to_search):
+
+      """
+         This function will be used to parse through the supplied log, find all
+         events in this scanner object's "self.scanner_events_dict" dictionary
+         of all possible events on a scanner, and return a dictionary of events
+         and their time of occurence.
+      """
+
+      # Reverse order of log, as above.
+      reversed_log = log_to_search[-1:0:-1]
+
+      for event_to_find in self.scanner_events_dict.keys():
+
+         for current_line in reversed_log:
+
+            if (event_to_find in current_line):
+
+               if (event_to_find == 'Patient registered'):
+                  event_date_current = self.event_date_01
+               else:
+                  event_date_current = self.event_date_00
+
+               try:
+                  this_event_date         = event_date_current.search(current_line)
+                  this_event_time         = self.event_time_00.search(current_line)
+
+                  self.scanner_events_dict[event_to_find] = this_event_date.group() + ' ' + this_event_time.group()
+
+                  break # Should break out the "this_line" loop, and go to next
+                        # iteration in "event_to_find" loop.
+
+               except AttributeError:
+
+                  print ("Log line not properly formed. Move to next, properly written, event.")
+
+               # print ("Event %45s happened at date: %s, time: %s" % (event_to_find, this_event_date.group(), this_event_time.group()))
+
+      return (self.scanner_events_dict)
 
