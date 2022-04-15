@@ -46,7 +46,7 @@ class event_catcher():
 
             self.log_files_dict  = dict.fromkeys(self.log_files)
 
-            self.event_date_00   = re.compile(r'\s{3} \s{3} \d{2} \d{4}')  # date format: Day-of-week Month Day-of-month YYYY
+            self.event_date_00   = re.compile(r'\w{3} \w{3} \d{2} \d{4}')  # date format: Day-of-week Month Day-of-month YYYY
             self.event_time_00   = re.compile(r'\d{2}:\d{2}:\d{2}.\d{6}')  # time format: HH:MM:SS.microeconds
 
             self.scanner_events  = ['Calling startSession',                # Start of session / patient registered.
@@ -156,4 +156,47 @@ class event_catcher():
       print ("Event %45s not found in log." % (event_to_find))
 
       return (event_to_find, None, None)
+
+
+
+   def generate_dict_of_scanner_events (self, log_to_search):
+
+      """
+         This function will be used to parse through the supplied log, find all
+         events in this scanner object's "self.scanner_events_dict" dictionary
+         of all possible events on a scanner, and return a dictionary of events
+         and their time of occurence.
+      """
+
+      # Set a dummy date, as this is not guaranteed to be found immedidately
+      # but once found, will be set appropropriately.  Log fed here should be
+      # in sequenetial time order, so any event after a proper date entry is
+      # recorded to have happened on that date, till the next date entry.
+      this_event_date = self.event_date_00.search('   XXX XXX 00 0000   ')
+
+      for this_line in log_to_search:
+
+         try:
+            current_line = this_line.decode('utf-8').strip()
+         except UnicodeDecodeError:
+            # print ("Cannot decode %s" % this_line)
+            continue
+
+         if (self.event_date_00.search(current_line) != None):
+            this_event_date = self.event_date_00.search(current_line)
+
+         for event_to_find in self.scanner_events_dict.keys():
+
+            # Determine if the line contains the event of interest.
+            if (event_to_find in current_line):
+
+               # If it does, then get the event's time.  Date is on a completely
+               # separate line in GE logs, so has to be handled a bit differently.
+               this_event_time         = self.event_time_00.search(current_line)
+
+               print ("Event %45s happened at date: %s, time: %s" % (event_to_find, this_event_date.group(), this_event_time.group()))
+
+               self.scanner_events_dict[event_to_find] = this_event_date.group() + ' ' + this_event_time.group()
+
+      return (self.scanner_events_dict)
 
