@@ -6,7 +6,7 @@ import handler
 
 
 try:
-   os.getenv('MRI_SCANNER_LOG')
+   os.environ['MRI_SCANNER_LOG']
 except:
    print ('\n   !!! Please define the environment variable MRI_SCANNER_LOG !!!\n')
    sys.exit(1)
