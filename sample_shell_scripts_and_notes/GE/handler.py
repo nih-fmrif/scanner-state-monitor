@@ -194,7 +194,7 @@ class event_catcher():
                # separate line in GE logs, so has to be handled a bit differently.
                this_event_time         = self.event_time_00.search(current_line)
 
-               print ("Event %45s happened at date: %s, time: %s" % (event_to_find, this_event_date.group(), this_event_time.group()))
+               # print ("Event %45s happened at date: %s, time: %s" % (event_to_find, this_event_date.group(), this_event_time.group()))
 
                self.scanner_events_dict[event_to_find] = this_event_date.group() + ' ' + this_event_time.group()
 
