@@ -3,7 +3,9 @@
 
 # Basic infrastruture to parse GE scanner logs
 
-import      re
+import      re, os
+import      gzip
+from        itertools   import   repeat
 
 
 
@@ -21,16 +23,17 @@ class event_catcher():
    def __init__(self, scanner_vendor='ge', platform_version='dv26.0_r02'):
 
       """
-         Right now, this is entry point to general object to parse data from the
-         scanners.  However, not sure if this will be a general entry point that
-         will 'hand-off' to objects to deal with the different scanner vendors,
-         and vendor-specific implementations, or if this object itself will be
-         particular to a vendor, and the create corresponding objects for other
-         vendors.
+         This initializes an object to parse data from GE scanners.  However,
 
-         Start with the former case (general object, hand off to vendor specific
-         within here).  If it stays this way, change name of module to reflect
-         this.
+         List of parsed log files, as well as regular expressions for times
+         and dates are set up, to be searched for later on.  Also set up the
+         list of log events to search for.
+
+         The list of log files and scanner events are converted to keys of a
+         dictionary (log files are in one dictionary, scanner log events are
+         in another).  The value (of each dictionary's key-value pair) will
+         have a modification time, for log files, or an occurence time, for
+         scanner events.
       """
 
       # Since we are looking for order of events to determine what the scanner
@@ -45,6 +48,10 @@ class event_catcher():
                               'scn.out.9.gz', 'scn.out']
 
             self.log_files_dict  = dict.fromkeys(self.log_files)
+
+            self.latest_files    = -3 # use this to determine how many of the
+                                      # last / latest log files written to disk
+                                      # are read in and searched.
 
             self.event_date_00   = re.compile(r'\w{3} \w{3} \d{2} \d{4}')  # date format: Day-of-week Month Day-of-month YYYY
             self.event_time_00   = re.compile(r'\d{2}:\d{2}:\d{2}.\d{6}')  # time format: HH:MM:SS.microeconds
@@ -68,7 +75,8 @@ class event_catcher():
                                     'resetMGDComplete',                    # Complete reset of hardware sequencers.
                                     'operator confirmed']                  # End of session / scanning complete / patient closed.
 
-            self.scanner_events_dict = dict.fromkeys(self.scanner_events)
+            # self.scanner_events_dict = dict.fromkeys(self.scanner_events)
+            self.scanner_events_dict = dict(zip(self.scanner_events, repeat('XXX XXX 00 0000 (i.e. did not occur)')))
 
 
 
@@ -102,60 +110,54 @@ class event_catcher():
 
 
 
-   def find_event (self, event_to_find, log_to_search):
+   def process_scanner_logs (self, log_file_dir):
 
       """
-         Parse through logs passed to this routine
-         (usually an array containing lines of text,
-         read in from scanner's log files).
+         On GE, this routine takes the directory containing the MR
+         scanner's log files, and using the dictionary of log file
+         names (i.e. self.log_files_dict) sorts them by modification
+         time.  It then returns the contents of the latest written
+         files on disk.
       """
 
-      # Reverse order of log, so events that are recorded towards the end/bottom of the log
-      # (i.e. later in time) show up first in this loop.  We want to catch the last/latest
-      # occurence of each event.
-      reversed_log = log_to_search[-1:0:-1]
+      for each_file in self.log_files_dict:
+         self.log_files_dict[each_file] =  os.path.getmtime(log_file_dir + '/' + each_file)
 
-      for this_line in reversed_log:
+      time_sorted_logs = self.sort_dict(self.log_files_dict)
 
-         try:
-            current_line = this_line.decode('utf-8').strip()
-         except UnicodeDecodeError:
-            # print ("Cannot decode %s" % this_line)
-            continue
+      log_lines = []
 
-         if (self.event_date_00.search(current_line) != None):
-            this_event_date = self.event_date_00.search(current_line)
+      # For initial implementation, try reading "just" the last / latest 3
+      # log files only (for performance reasons).  I know that sometimes,
+      # the most current log files lack all events, and sometimes even the
+      # explicit current date entry.  So try this for now, till a better /
+      # more efficient way is developed to parse through more of the logs.
 
-         # Make sure we are dealing with event we can handle
-         if (event_to_find in self.scanner_events):
-            # Then determine if the line contains the event of interest.
+      for each_file in time_sorted_logs[self.latest_files:]:
 
-            if (event_to_find in current_line):
+         file_name = each_file[0] # i.e. the same of the file. [1] is its
+                                  # modification time.
+         file_path = log_file_dir + '/' + file_name
 
-               # If it does, then get the event's date and time.
-               this_event_time         = self.event_time_00.search(current_line)
-
-               # print ("Event %45s happened at date: %s, time: %s" % (event_to_find, this_event_date.group(), this_event_time.group()))
-
-               # return (event_to_find, this_event_date.group(), this_event_time.group())
-
-               print ("Event %45s happened at time: %s" % (event_to_find, this_event_time.group()))
-
-               return (event_to_find, None, this_event_time.group())
-
+         if ("gz" in file_name):
+            print ("Prepare for reading   compressed file: %s" % file_name)
+            log_file_open_function = gzip.open
          else:
+            print ("Prepare for reading uncompressed file: %s" % file_name)
+            log_file_open_function = open
 
-            # Have to handle error for event being searched for not in list
-            # of events.
+         # Use the "list.extend()" method here, to add / stack the entries
+         # from each log file together, into one LARGE list of log entries.
+         # If the more common "list.append()" is used, then the whole list
+         # of entries becomes a list of lists of entries from each file -
+         # which is not what is desired.  It preferable to have the entire
+         # content of all log files in a single, time-ordered, list.  This
+         # is generated, and returned.
+         with log_file_open_function (file_path, mode='rb') as raw_log:
+             this_file_lines = raw_log.readlines()
+         log_lines.extend(this_file_lines)
 
-            print ("Event %45s not in list of possible events!" % event_to_find)
-            return (None, None, None)
-
-      # Handle event being valid, but not found at all in log.
-
-      print ("Event %45s not found in log." % (event_to_find))
-
-      return (event_to_find, None, None)
+      return log_lines
 
 
 
