@@ -4,11 +4,11 @@ sys.path.insert(0, os.path.abspath('.'))
 import handler
 
 try:
-   os.getenv('MRI_SCANNER_LOG')
-   with open (os.getenv('MRI_SCANNER_LOG'), 'r') as raw_log:
+   os.getenv('MRI_SCANNER_LOG_DIR')
+   with open (os.getenv('MRI_SCANNER_LOG_DIR'), 'r') as raw_log:
       log_lines = raw_log.readlines()
 except:
-   print ('\n   !!! Please define the environment variable MRI_SCANNER_LOG !!!\n')
+   print ('\n   !!! Please define the environment variable MRI_SCANNER_LOG_DIR !!!\n')
    sys.exit(1)
 
 sh = handler.event_catcher()

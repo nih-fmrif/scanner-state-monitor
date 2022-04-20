@@ -54,7 +54,7 @@ class _EventHandler(FileSystemEventHandler):
       self._loop.call_soon_threadsafe(self._queue.put_nowait, event)
       print("on_modified", event.src_path)
 
-      with open (os.getenv('MRI_SCANNER_LOG'), 'r') as raw_log:
+      with open (os.getenv('MRI_SCANNER_LOG_DIR'), 'r') as raw_log:
          log_lines = raw_log.readlines()
 
       self.scanner_event_detector.find_most_recent_event (log_lines)
@@ -113,10 +113,10 @@ if __name__ == "__main__":
 
    # reading logging location from environment from account running this.
    try:
-      os.environ['MRI_SCANNER_LOG']
-      scanner_log_dir = os.getenv('MRI_SCANNER_LOG')
+      os.environ['MRI_SCANNER_LOG_DIR']
+      scanner_log_dir = os.getenv('MRI_SCANNER_LOG_DIR')
    except:
-      print ('\n   !!! Please define the environment variable MRI_SCANNER_LOG !!!\n')
+      print ('\n   !!! Please define the environment variable MRI_SCANNER_LOG_DIR !!!\n')
       sys.exit(1)
 
    loop = asyncio.get_event_loop()
