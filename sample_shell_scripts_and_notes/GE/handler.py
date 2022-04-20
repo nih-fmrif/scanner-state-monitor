@@ -24,8 +24,7 @@ class event_catcher():
 
       """
          This initializes an object to parse data from GE scanners.  However,
-
-         List of parsed log files, as well as regular expressions for times
+         list of parsed log files, as well as regular expressions for times
          and dates are set up, to be searched for later on.  Also set up the
          list of log events to search for.
 
@@ -76,7 +75,11 @@ class event_catcher():
                                     'operator confirmed']                  # End of session / scanning complete / patient closed.
 
             # self.scanner_events_dict = dict.fromkeys(self.scanner_events)
-            self.scanner_events_dict = dict(zip(self.scanner_events, repeat('XXX XXX 00 0000 (i.e. did not occur)')))
+            #
+            # Initialize dictionary values with nonsensical value, so if an
+            # event is not found in the logs, it can still processed by the
+            # 'sort_dict' routine.
+            self.scanner_events_dict = dict(zip(self.scanner_events, repeat('AAA AAA 00 0000 (i.e. did not occur)')))
 
 
 
