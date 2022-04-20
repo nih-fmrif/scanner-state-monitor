@@ -113,7 +113,7 @@ class event_catcher():
 
 
 
-   def process_scanner_logs (self, log_file_dir):
+   def process_scanner_logs (self, log_file_dir, log_file_read_mode='rb'):
 
       """
          On GE, this routine takes the directory containing the MR
@@ -138,7 +138,7 @@ class event_catcher():
 
       for each_file in time_sorted_logs[self.latest_files:]:
 
-         file_name = each_file[0] # i.e. the same of the file. [1] is its
+         file_name = each_file[0] # i.e. the name of the file. [1] is its
                                   # modification time.
          file_path = log_file_dir + '/' + file_name
 
@@ -156,7 +156,7 @@ class event_catcher():
          # which is not what is desired.  It preferable to have the entire
          # content of all log files in a single, time-ordered, list.  This
          # is generated, and returned.
-         with log_file_open_function (file_path, mode='rb') as raw_log:
+         with log_file_open_function (file_path, mode=log_file_read_mode) as raw_log:
              this_file_lines = raw_log.readlines()
          log_lines.extend(this_file_lines)
 
