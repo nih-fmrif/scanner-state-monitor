@@ -3,7 +3,9 @@
 
 # Basic infrastruture to parse Siemens scanner logs
 
-import      re
+import      re, os
+import      gzip
+from        itertools   import   repeat
 
 
 
@@ -38,6 +40,15 @@ class event_catcher():
       # get the date and time, and set up list of events to search for.
       if (scanner_vendor == 'siemens'):
          if (platform_version == 've11c'):
+
+            self.log_files = ['MrMeas_container.log']
+
+            self.log_files_dict  = dict.fromkeys(self.log_files)
+
+            self.latest_files    = -1 # use this to determine how many of the
+                                      # last / latest log files written to disk
+                                      # are read in and searched.
+
             self.event_date_00   = re.compile(r'\d{4}-\d{2}-\d{2}')        # date format: yyyy-mm-dd
             self.event_time_00   = re.compile(r'\d{2}:\d{2}:\d{2}.\d{3}')  # time format: HH:MM:SS.milliseconds
             self.event_date_01   = re.compile(r'\D{3} \D{3} \d{2}')        # date format: DOW MON dd (DOW == day of the week,
@@ -52,103 +63,93 @@ class event_catcher():
                                     'Patient registered',                  # Patient registered and deregistered
                                     'EVENT_PATIENT_DEREGISTERED']          # Patient deregistered only
 
-            self.scanner_events_dict = dict.fromkeys(self.scanner_events)
+            # self.scanner_events_dict = dict.fromkeys(self.scanner_events)
+            #
+            # Initialize dictionary values with nonsensical value, so if an
+            # event is not found in the logs, it can still processed by the
+            # 'sort_dict' routine.
+            self.scanner_events_dict = dict(zip(self.scanner_events, repeat('AAA AAA 00 0000 (i.e. did not occur)')))
 
 
 
-   def find_event (self, event_to_find, log_to_search):
+   def sort_dict (self, dictionary_to_sort,
+                        sort_by = 'value',
+                        sort_reverse_time_order = False):
 
       """
-         Parse through logs passed to this routine
-         (usually an array containing lines of text,
-         read in from scanner's log files).
+         This routine will take a dictionary, where we expect the 'value' of
+         each key-value pair to be a date/time element.  This routine will
+         then sort on time - earliest to latest, or latest-to-earliest can be
+         chosen by setting 'sort_reverse_time_order' to be False or True,
+         respectively.
+
+         The option to sort on dictionary keys is also retained, by setting
+         the value of the 'sort_by' argument to 'key'.  However, this is not
+         expected to be heavily used.
+
+         This routine will return an ordered ascending or descending list of
+         key-value pairs.
       """
 
-      # Reverse order of log, so events that are recorded towards the end/bottom of the log
-      # (i.e. later in time) show up first in this loop.  We want to catch the last/latest
-      # occurence of each event.
-      reversed_log = log_to_search[-1:0:-1]
+      if (sort_by == 'key'):
+         index_to_sort_on = 0
+      else:
+         index_to_sort_on = 1
 
-      for current_line in reversed_log:
+      return sorted(dictionary_to_sort.items(),
+                    key = lambda x:x[index_to_sort_on],
+                    reverse = sort_reverse_time_order)
 
-         # # If any event is in current_line - capture and print.
-         # if any(this_event in current_line for this_event in self.scanner_events):
 
-            # # get the event itself, by finding intersection of set of events
-            # # possible, and the text in the line.
-            # # have to remove parentheses to match to array of events.
-            # current_line_elements   = current_line.replace("(","").replace(")","").split()
-            # current_event           = set(current_line_elements) & set(self.scanner_events)
 
-         # Make sure we are dealing with event we can handle
-         if (event_to_find in self.scanner_events):
-            # Then determine if the line contains the event of interest.
+   def process_scanner_logs (self, log_file_dir, log_file_read_mode='rb'):
 
-            if (event_to_find == 'Patient registered'):
-               event_date_current = self.event_date_01
-            else:
-               event_date_current = self.event_date_00
+      """
+         On Siemens, this routine takes the directory containing the
+         MR scanner's log files, and using the dictionary of log file
+         names (i.e. self.log_files_dict) sorts them by modification
+         time.  It then returns the contents of the latest written
+         files on disk.
+      """
 
-            if (event_to_find in current_line):
+      for each_file in self.log_files_dict:
+         self.log_files_dict[each_file] =  os.path.getmtime(log_file_dir + '/' + each_file)
 
-               # If it does, then get the event's date and time.
-               this_event_date         = event_date_current.search(current_line)
-               this_event_time         = self.event_time_00.search(current_line)
+      time_sorted_logs = self.sort_dict(self.log_files_dict)
 
-               print ("Event %27s happened at date: %s, time: %s" % (event_to_find, this_event_date.group(), this_event_time.group()))
+      log_lines = []
 
-               return (event_to_find, this_event_date.group(), this_event_time.group())
+      # For initial implementation, try reading "just" the last / latest 3
+      # log files only (for performance reasons).  I know that sometimes,
+      # the most current log files lack all events, and sometimes even the
+      # explicit current date entry.  So try this for now, till a better /
+      # more efficient way is developed to parse through more of the logs.
 
+      for each_file in time_sorted_logs[self.latest_files:]:
+
+         file_name = each_file[0] # i.e. the name of the file. [1] is its
+                                  # modification time.
+         file_path = log_file_dir + '/' + file_name
+
+         if ("gz" in file_name):
+            print ("Prepare for reading   compressed file: %s" % file_name)
+            log_file_open_function = gzip.open
          else:
+            print ("Prepare for reading uncompressed file: %s" % file_name)
+            log_file_open_function = open
 
-            # Have to handle error for event being searched for not in list
-            # of events.
+         # Use the "list.extend()" method here, to add / stack the entries
+         # from each log file together, into one LARGE list of log entries.
+         # If the more common "list.append()" is used, then the whole list
+         # of entries becomes a list of lists of entries from each file -
+         # which is not what is desired.  It preferable to have the entire
+         # content of all log files in a single, time-ordered, list.  This
+         # is generated, and returned.
+         with log_file_open_function (file_path, mode=log_file_read_mode) as raw_log:
+             this_file_lines = raw_log.readlines()
+         log_lines.extend(this_file_lines)
 
-            print ("Event %27s not in list of possible events!" % event_to_find)
-            return (None, None, None)
-
-      # Handle event being valid, but not found at all in log.
-
-      print ("Event %27s not found in log." % (event_to_find))
-
-      return (event_to_find, None, None)
-
-
-
-   def find_most_recent_event (self, log_to_search):
-
-      """
-         Find last / most recent event in the scanner's log files).
-      """
-
-      # Reverse order of log, as above.
-      reversed_log = log_to_search[-1:0:-1]
-
-      for current_line in reversed_log:
-
-         if any (this_event in current_line for this_event in self.scanner_events):
-
-            event_to_find = [current_event for current_event in self.scanner_events if current_event in current_line][0]
-
-            print ("Workng on event %27s" % event_to_find)
-
-            if (event_to_find == 'Patient registered'):
-               event_date_current = self.event_date_01
-            else:
-               event_date_current = self.event_date_00
-
-            # If it does, then get the event's date and time.
-            try:
-               this_event_date         = event_date_current.search(current_line)
-               this_event_time         = self.event_time_00.search(current_line)
-
-               print ("Last dectected event, %27s, happened at date: %s, time: %s" % (event_to_find, this_event_date.group(), this_event_time.group()))
-
-               return (event_to_find, this_event_date.group(), this_event_time.group())
-            except AttributeError:
-
-               print ("Log line not properly formed. Move to next, properly written, event.")
-
+      return log_lines
 
 
    def generate_dict_of_scanner_events (self, log_to_search):
