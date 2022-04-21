@@ -54,10 +54,12 @@ class _EventHandler(FileSystemEventHandler):
       self._loop.call_soon_threadsafe(self._queue.put_nowait, event)
       print("on_modified", event.src_path)
 
-      with open (os.getenv('MRI_SCANNER_LOG_DIR'), 'r') as raw_log:
-         log_lines = raw_log.readlines()
+      log_lines = self.scanner_event_detector.process_scanner_logs(os.getenv('MRI_SCANNER_LOG_DIR'), log_file_read_mode='r')
 
-      self.scanner_event_detector.find_most_recent_event (log_lines)
+      scanner_log_events_and_times = self.scanner_event_detector.sort_dict(self.scanner_event_detector.generate_dict_of_scanner_events(log_lines))
+      for event in scanner_log_events_and_times:
+
+         print ("Event %36s happened at %s" % (event[0], event[1]))
 
    def on_moved(self, event: FileSystemEvent) -> None:
       self._loop.call_soon_threadsafe(self._queue.put_nowait, event)
@@ -114,7 +116,7 @@ if __name__ == "__main__":
    # reading logging location from environment from account running this.
    try:
       os.environ['MRI_SCANNER_LOG_DIR']
-      scanner_log_dir = os.getenv('MRI_SCANNER_LOG_DIR')
+      scanner_log_dir = os.getenv('MRI_SCANNER_LOG_DIR') + '/' + 'MrMeas_container.log'
    except:
       print ('\n   !!! Please define the environment variable MRI_SCANNER_LOG_DIR !!!\n')
       sys.exit(1)
