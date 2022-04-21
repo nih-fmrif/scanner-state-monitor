@@ -6,6 +6,7 @@
 import      re, os
 import      gzip
 from        itertools   import   repeat
+import      datetime
 
 
 
@@ -170,16 +171,27 @@ class event_catcher():
 
             if (event_to_find in current_line):
 
-               if (event_to_find == 'Patient registered'):
-                  event_date_current = self.event_date_01
-               else:
-                  event_date_current = self.event_date_00
-
                try:
-                  this_event_date         = event_date_current.search(current_line)
-                  this_event_time         = self.event_time_00.search(current_line)
+                  this_event_time      = self.event_time_00.search(current_line)
 
-                  self.scanner_events_dict[event_to_find] = this_event_date.group() + ' ' + this_event_time.group()
+                  if (event_to_find == 'Patient registered'):
+                     patient_event_date = self.event_date_01.search(current_line)
+                     # Patient registered event doesn't contain the year of the event, so grab current year.
+                     # Note the fragility of this assumption for scanning over midnight from New Year's Eve
+                     # to New Year's Day.
+                     this_event_year    = '{num:{fill}{width}}'.format(num=datetime.date.today().year, fill='0', width=4)
+                     this_event_month   = '{num:{fill}{width}}'.format(num=(datetime.datetime.strptime((patient_event_date.group()).split()[1], "%b")).month, fill='0', width=2)
+                     this_event_day     = (patient_event_date.group()).split()[2]
+                     raw_patient_date   = this_event_year + '-' + this_event_month + '-' + this_event_day
+
+                     this_event_date    = self.event_date_00.search(raw_patient_date)
+                  else:
+                     this_event_date    = self.event_date_00.search(current_line)
+
+                  # Make the event date and time a contiguous string, with the delimiter being a '-', between YYYY, MM, DD, HH, MM,
+                  # and SS.  Should make ordered sorting based on this a bit more straight-forward.
+                  self.scanner_events_dict[event_to_find] = this_event_date.group() + '-' + re.sub(':', '-', this_event_time.group())
+                  # self.scanner_events_dict[event_to_find] = '-' + re.sub(':', '-', this_event_time.group())
 
                   break # Should break out the "this_line" loop, and go to next
                         # iteration in "event_to_find" loop.
