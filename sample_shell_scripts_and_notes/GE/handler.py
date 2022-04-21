@@ -6,6 +6,7 @@
 import      re, os
 import      gzip
 from        itertools   import   repeat
+import      datetime
 
 
 
@@ -199,9 +200,24 @@ class event_catcher():
                # separate line in GE logs, so has to be handled a bit differently.
                this_event_time         = self.event_time_00.search(current_line)
 
+               this_event_date_time    = this_event_date.group() + ' ' + this_event_time.group()
+
                # print ("Event %45s happened at date: %s, time: %s" % (event_to_find, this_event_date.group(), this_event_time.group()))
 
-               self.scanner_events_dict[event_to_find] = this_event_date.group() + ' ' + this_event_time.group()
+               # self.scanner_events_dict[event_to_find] = this_event_date.group() + ' ' + this_event_time.group()
+
+               try:
+                  # Take time string as extract from the scanner logs, i.e. Day Mon Date Year HH:MM:SS.ms
+                  date_time_object        = datetime.datetime.strptime(this_event_date_time, '%a %b %d %Y %H:%M:%S.%f')
+
+                  # and convert it to completely numerical form, i.e. yyyy-mm-dd-HH-MM-SS.ms, which can then be ordered trivially
+                  self.scanner_events_dict[event_to_find] = date_time_object.strftime('%Y-%m-%d-%H-%M-%S.%f')
+
+                  # print ("Event %45s happened at date-time: %s" % (event_to_find, self.scanner_events_dict[event_to_find]))
+
+               except:
+                  # print ("Event %s can't be matched with a valid date or time", event_to_find)
+                  continue
 
       return (self.scanner_events_dict)
 
