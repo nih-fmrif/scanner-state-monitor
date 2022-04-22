@@ -210,7 +210,7 @@ class event_catcher():
                   # Take time string as extract from the scanner logs, i.e. Day Mon Date Year HH:MM:SS.ms
                   date_time_object        = datetime.datetime.strptime(this_event_date_time, '%a %b %d %Y %H:%M:%S.%f')
 
-                  # and convert it to completely numerical form, i.e. yyyy-mm-dd-HH-MM-SS.ms, which can then be ordered trivially
+                  # and convert it to completely numerical form, i.e. yyyy-mm-dd-HH-MM-SS.us, which can then be ordered trivially
                   self.scanner_events_dict[event_to_find] = date_time_object.strftime('%Y-%m-%d-%H-%M-%S.%f')
 
                   # print ("Event %45s happened at date-time: %s" % (event_to_find, self.scanner_events_dict[event_to_find]))
