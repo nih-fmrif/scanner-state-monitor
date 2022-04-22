@@ -50,8 +50,8 @@ class event_catcher():
                                       # last / latest log files written to disk
                                       # are read in and searched.
 
-            self.event_date_00   = re.compile(r'\d{4}-\d{2}-\d{2}')        # date format: yyyy-mm-dd
             self.event_time_00   = re.compile(r'\d{2}:\d{2}:\d{2}.\d{3}')  # time format: HH:MM:SS.milliseconds
+            self.event_date_00   = re.compile(r'\d{4}-\d{2}-\d{2}')        # date format: yyyy-mm-dd
             self.event_date_01   = re.compile(r'\D{3} \D{3} \d{2}')        # date format: DOW MON dd (DOW == day of the week,
                                                                            #                          MON == month,
                                                                            #                          dd  == day in month)
@@ -178,20 +178,22 @@ class event_catcher():
                      patient_event_date = self.event_date_01.search(current_line)
                      # Patient registered event doesn't contain the year of the event, so grab current year.
                      # Note the fragility of this assumption for scanning over midnight from New Year's Eve
-                     # to New Year's Day.
-                     this_event_year    = '{num:{fill}{width}}'.format(num=datetime.date.today().year, fill='0', width=4)
-                     this_event_month   = '{num:{fill}{width}}'.format(num=(datetime.datetime.strptime((patient_event_date.group()).split()[1], "%b")).month, fill='0', width=2)
-                     this_event_day     = (patient_event_date.group()).split()[2]
-                     raw_patient_date   = this_event_year + '-' + this_event_month + '-' + this_event_day
+                     # to New Year's Day.  So we are parsing an event that looks like this:
+                     #
+                     # Tue Sep 07 10:54:45.453 SBM INFO: -->Patient registered
 
-                     this_event_date    = self.event_date_00.search(raw_patient_date)
+                     this_event_year    = '{num:{fill}{width}}'.format(num=datetime.date.today().year, fill='0', width=4)
+                     date_time_string   = patient_event_date.group() + ' ' + this_event_year + ' ' + this_event_time.group()
+
+                     date_time_object   = datetime.datetime.strptime(date_time_string, '%a %b %d %Y %H:%M:%S.%f')
                   else:
                      this_event_date    = self.event_date_00.search(current_line)
+                     date_time_string   = this_event_date.group() + ' ' + this_event_time.group()
+                     date_time_object   = datetime.datetime.strptime(date_time_string, '%Y-%m-%d %H:%M:%S.%f')
 
-                  # Make the event date and time a contiguous string, with the delimiter being a '-', between YYYY, MM, DD, HH, MM,
-                  # and SS.  Should make ordered sorting based on this a bit more straight-forward.
-                  self.scanner_events_dict[event_to_find] = this_event_date.group() + '-' + re.sub(':', '-', this_event_time.group())
-                  # self.scanner_events_dict[event_to_find] = '-' + re.sub(':', '-', this_event_time.group())
+                  # Make the event date and time a contiguous string, with the delimiter being a '-', between YYYY, MM, DD,
+                  # HH, MM, and SS.  Should make ordered sorting based on this a bit more straight-forward.
+                  self.scanner_events_dict[event_to_find] = date_time_object.strftime('%Y-%m-%d-%H-%M-%S.%f')
 
                   break # Should break out the "this_line" loop, and go to next
                         # iteration in "event_to_find" loop.
