@@ -37,6 +37,7 @@ class _EventHandler(FileSystemEventHandler):
       super(*args, **kwargs)
 
       self.scanner_event_detector = Siemens.handler.event_catcher()
+      # self.scanner_event_detector = GE.handler.event_catcher()
 
    def on_created(self, event: FileSystemEvent) -> None:
       self._loop.call_soon_threadsafe(self._queue.put_nowait, event)
@@ -54,8 +55,10 @@ class _EventHandler(FileSystemEventHandler):
       self._loop.call_soon_threadsafe(self._queue.put_nowait, event)
       print("on_modified", event.src_path)
 
-      log_lines = self.scanner_event_detector.process_scanner_logs(os.getenv('MRI_SCANNER_LOG_DIR'), log_file_read_mode='r')
+      log_lines = self.scanner_event_detector.process_scanner_logs(os.getenv('MRI_SCANNER_LOG_DIR'), log_file_read_mode='r')    # Siemens
+      # log_lines = self.scanner_event_detector.process_scanner_logs(os.getenv('MRI_SCANNER_LOG_DIR'), log_file_read_mode='rb')   # GE
 
+      scanner_log_events_and_times = []
       scanner_log_events_and_times = self.scanner_event_detector.sort_dict(self.scanner_event_detector.generate_dict_of_scanner_events(log_lines))
       for event in scanner_log_events_and_times:
 
@@ -116,7 +119,8 @@ if __name__ == "__main__":
    # reading logging location from environment from account running this.
    try:
       os.environ['MRI_SCANNER_LOG_DIR']
-      scanner_log_dir = os.getenv('MRI_SCANNER_LOG_DIR') + '/' + 'MrMeas_container.log'
+      scanner_log_dir = os.getenv('MRI_SCANNER_LOG_DIR') + '/' + 'MrMeas_container.log'   # Siemens
+      # scanner_log_dir = os.getenv('MRI_SCANNER_LOG_DIR') + '/' + 'scn.out'                # GE
    except:
       print ('\n   !!! Please define the environment variable MRI_SCANNER_LOG_DIR !!!\n')
       sys.exit(1)
