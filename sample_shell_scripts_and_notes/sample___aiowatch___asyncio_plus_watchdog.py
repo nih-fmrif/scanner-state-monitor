@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 
-# /home/rtadmin/RTafni/venv/real_time_AFNI/bin/python3
 # Code based on aiowatch, from:
 #
 #    https://gist.github.com/mivade/f4cb26c282d421a62e8b9a341c7c65f6
