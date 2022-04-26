@@ -42,7 +42,7 @@ class event_catcher():
       if (scanner_vendor == 'siemens'):
          if (platform_version == 've11c'):
 
-            self.log_files = ['MrMeas_container.log']
+            self.log_files       = ['MrMeas_container.log']
 
             self.log_files_dict  = dict.fromkeys(self.log_files)
 

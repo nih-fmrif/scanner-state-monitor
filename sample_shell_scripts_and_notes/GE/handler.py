@@ -42,10 +42,10 @@ class event_catcher():
       if (scanner_vendor == 'ge'):
          if (platform_version == 'dv26.0_r02'):
 
-            self.log_files = ['scn.out.0.gz', 'scn.out.1.gz', 'scn.out.2.gz',
-                              'scn.out.3.gz', 'scn.out.4.gz', 'scn.out.5.gz',
-                              'scn.out.6.gz', 'scn.out.7.gz', 'scn.out.8.gz',
-                              'scn.out.9.gz', 'scn.out']
+            self.log_files       = ['scn.out.0.gz', 'scn.out.1.gz', 'scn.out.2.gz',
+                                    'scn.out.3.gz', 'scn.out.4.gz', 'scn.out.5.gz',
+                                    'scn.out.6.gz', 'scn.out.7.gz', 'scn.out.8.gz',
+                                    'scn.out.9.gz', 'scn.out']
 
             self.log_files_dict  = dict.fromkeys(self.log_files)
 
