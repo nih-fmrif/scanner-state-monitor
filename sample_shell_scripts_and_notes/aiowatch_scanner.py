@@ -37,8 +37,6 @@ class _EventHandler(FileSystemEventHandler):
          self.scanner_event_detector = GE.handler.event_catcher()
          self.log_file_read_mode     = 'rb'
 
-      self.scanner_log_file          = self.log_file_dir + self.scanner_event_detector.log_files[-1]
-
    # remove all separate def - filesystem events, i.e. "on_modified",
    # "on_deleted", "on_created", "on_moved" - as all we are concerned
    # with catching are *ANY* log changes, except for "on_deleted" -
@@ -50,7 +48,7 @@ class _EventHandler(FileSystemEventHandler):
 
       if ((event.event_type == "modified") or (event.event_type == "created") or (event.event_type == "moved")):
 
-         log_lines = self.scanner_event_detector.process_scanner_logs(self.log_file_dir, self.log_file_read_mode)
+         log_lines = self.scanner_event_detector.process_scanner_logs(self.log_file_dir, log_file_read_mode=self.log_file_read_mode)
 
          scanner_log_events_and_times = []
          scanner_log_events_and_times = self.scanner_event_detector.sort_dict(self.scanner_event_detector.generate_dict_of_scanner_events(log_lines))
