@@ -153,6 +153,7 @@ class event_catcher():
       return log_lines
 
 
+
    def generate_dict_of_scanner_events (self, log_to_search):
 
       """
@@ -205,4 +206,56 @@ class event_catcher():
                # print ("Event %45s happened at date: %s, time: %s" % (event_to_find, this_event_date.group(), this_event_time.group()))
 
       return (self.scanner_events_dict)
+
+
+
+   def determine_state_and_actions (self, scanner_events_ordered):
+
+      """
+         This function will take a list of time-ordered events, i.e.
+         the argument 'scanner_events_ordered', and from that, figure
+         out what the scanner is doing, what state it is in, and what
+         actions this script / library / object can drive.
+
+         This will, of course, be specific to each scanner platform -
+         i.e. linking a message or label to a specific scanner state.
+         However, the plan will be to make the states more generic and
+         platform agnostic.
+
+         The events fed to this function should be an event label that
+         is paired with a time event, in the format:
+
+               YYYY-MM-DD-HH-MM-SS.ususus
+
+         so that a standard datetime call can be used for any parsing
+         that might be 'time-sensitive'.
+
+      """
+
+      for event_time_pair in scanner_events_ordered:
+
+         if (event_time_pair[0] == 'Patient registered'):
+            patient_time_object_registered   = datetime.datetime.strptime(event_time_pair[1],
+                                                                          '%Y-%m-%d-%H-%M-%S.%f')
+         if (event_time_pair[0] == 'EVENT_PATIENT_DEREGISTERED'):
+            patient_time_object_deregistered = datetime.datetime.strptime(event_time_pair[1],
+                                                                          '%Y-%m-%d-%H-%M-%S.%f')
+
+      # In the Siemens log, the 'Patient registered' message shows up *BOTH* when the patient
+      # is registered, *AND* when the patient is deregistered.  However, in the latter case,
+      # the 'EVENT_PATIENT_DEREGISTERED' flag is almost immediately adjacent in time.  Pick a
+      # small delta (here 3 seconds) to determine the separation of the flags, to figure out
+      # if a patient has been registered on the console interface or not.
+      if ((patient_time_object_registered.second - patient_time_object_deregistered.second) < 3):
+         print ("No patient registered")
+      else:
+         print ("Patient registered")
+
+      # Otherwise - take a look at the last event in the list to determine the current state
+      # of the scanner.
+      if (scanner_events_ordered[-1][0] == 'MSR_OK'):
+         print ("Scanner is acquiring data.")
+
+      if (scanner_events_ordered[-1][0] == 'MSR_MEAS_FINISHED'):
+         print ("Scanner is done acquiring data.")
 
