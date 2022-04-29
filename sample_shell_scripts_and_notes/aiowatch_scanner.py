@@ -56,6 +56,8 @@ class _EventHandler(FileSystemEventHandler):
 
             print ("Event %36s happened at %s" % (event[0], event[1]))
 
+         self.scanner_event_detector.determine_state_and_actions(scanner_log_events_and_times)
+
 
 
 class EventIterator(object):
