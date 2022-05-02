@@ -221,3 +221,64 @@ class event_catcher():
 
       return (self.scanner_events_dict)
 
+
+
+   def determine_state_and_actions (self, scanner_events_ordered):
+
+      """
+         This function will take a list of time-ordered events, i.e.
+         the argument 'scanner_events_ordered', and from that, figure
+         out what the scanner is doing, what state it is in, and what
+         actions this script / library / object can drive.
+
+         This will, of course, be specific to each scanner platform -
+         i.e. linking a message or label to a specific scanner state.
+         However, the plan will be to make the states more generic and
+         platform agnostic.
+
+         The events fed to this function should be an event label that
+         is paired with a time event, in the format:
+
+               YYYY-MM-DD-HH-MM-SS.ususus
+
+         so that a standard datetime call can be used for any parsing
+         that might be 'time-sensitive'.
+
+      """
+
+      for event_time_pair in scanner_events_ordered:
+
+         if (event_time_pair[0] == 'Calling startSession'):
+            patient_time_object_registered   = datetime.datetime.strptime(event_time_pair[1],
+                                                                          '%Y-%m-%d-%H-%M-%S.%f')
+         if (event_time_pair[0] == 'operator confirmed'):
+            patient_time_object_deregistered = datetime.datetime.strptime(event_time_pair[1],
+                                                                          '%Y-%m-%d-%H-%M-%S.%f')
+
+      if (patient_time_object_registered < patient_time_object_deregistered):
+         print ("No patient registered")
+      else:
+         print ("Patient registered")
+
+      # Otherwise - take a look at the last event in the list to determine the current state
+      # of the scanner.
+
+      if (scanner_events_ordered[-1][0] == 'downloadDone'):
+         print ("Pulse sequence is downloaded into scanner and ready for pre-scanning.")
+
+      if (scanner_events_ordered[-1][0] == 'Sending ready'):
+         print ("Pre-scanning is complete and scanner is prepped and ready to acquire data.")
+
+      if (scanner_events_ordered[-1][0] == 'Send Image Install Request to TIR'):
+         print ("Scanner is acquiring data.")
+
+      if (scanner_events_ordered[-1][0] == 'Got scanStopped'):
+         print ("Scanner is done acquiring data.")
+
+      if ((scanner_events_ordered[-1][0] == 'gotImgXfrDone') or
+          (scanner_events_ordered[-1][0] == 'Got reconStop') or
+          (scanner_events_ordered[-1][0] == 'updateOnReconDone')):
+         print ("Scanner has completed data reconstruction.")
+
+      print ("Last / most recent event in event queue is %s" % scanner_events_ordered[-1][0])
+
