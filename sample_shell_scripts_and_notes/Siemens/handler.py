@@ -246,7 +246,7 @@ class event_catcher():
       # the 'EVENT_PATIENT_DEREGISTERED' flag is almost immediately adjacent in time.  Pick a
       # small delta (here 3 seconds) to determine the separation of the flags, to figure out
       # if a patient has been registered on the console interface or not.
-      if ((patient_time_object_registered.second - patient_time_object_deregistered.second) < 3):
+      if ((patient_time_object_registered - patient_time_object_deregistered).total_seconds() < 3):
          print ("No patient registered")
       else:
          print ("Patient registered")
