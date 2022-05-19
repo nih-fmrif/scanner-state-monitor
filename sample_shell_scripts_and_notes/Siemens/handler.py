@@ -69,7 +69,8 @@ class event_catcher():
             # Initialize dictionary values with nonsensical value, so if an
             # event is not found in the logs, it can still processed by the
             # 'sort_dict' routine.
-            self.scanner_events_dict = dict(zip(self.scanner_events, repeat('AAA AAA 00 0000 (i.e. did not occur)')))
+            # self.scanner_events_dict = dict(zip(self.scanner_events, repeat('AAA AAA 00 0000 (i.e. did not occur)')))
+            self.scanner_events_dict = dict(zip(self.scanner_events, repeat('0001-01-01-00-00-00.001')))
 
 
 
@@ -253,9 +254,12 @@ class event_catcher():
 
       # Otherwise - take a look at the last event in the list to determine the current state
       # of the scanner.
-      if (scanner_events_ordered[-1][0] == 'MSR_OK'):
+      if ((scanner_events_ordered[-1][0] == 'MSR_OK') or
+          (scanner_events_ordered[-1][0] == 'MSR_STARTED')):
          print ("Scanner is acquiring data.")
 
-      if (scanner_events_ordered[-1][0] == 'MSR_MEAS_FINISHED'):
+      if ((scanner_events_ordered[-1][0] == 'MSR_MEAS_FINISHED') or
+          (scanner_events_ordered[-1][0] == 'MSR_ACQ_FINISHED') or
+          (scanner_events_ordered[-1][0] == 'MSR_SCANNER_FINISHED')):
          print ("Scanner is done acquiring data.")
 
