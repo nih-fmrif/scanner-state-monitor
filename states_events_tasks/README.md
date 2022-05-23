@@ -30,6 +30,12 @@ like this:
 
 ![alt text](./real-time-control-schematic.svg "MR-scanner states and transitions")
 
+This diagram represents the flow of information currently implemented in this
+software:
+
+![alt text](./implementation-schematic.svg    "Information flow and control")
+
+
 
 
 ## List of more specialized states to detect, or applications to trigger:
