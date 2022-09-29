@@ -4,3 +4,4 @@ channels:
 dependencies:
    - requests
    - watchdog
+   - flask
