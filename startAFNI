@@ -1,0 +1,44 @@
+
+#!/bin/bash
+
+export AFNI_REALTIME_Registration=3D:_realtime
+export   AFNI_REALTIME_Base_Image=2
+export        AFNI_REALTIME_Graph=Realtime
+export AFNI_REALTIME_MP_HOST_PORT=192.168.2.7:53214
+export    AFNI_REALTIME_Mask_Vals=ROI_means
+export     AFNI_REALTIME_Function=FIM
+
+dataRoot="/data/data0/rt/"
+helpMsg="   Must give at least 1 argument - the name of directory to be created in "$dataRoot
+
+if [ $# -eq 0 ] || [ $1 == "-h" ] || [ $1 == "--h" ] || [ $1 == "-help" ] || [ $1 == "--help" ]
+then
+   echo $helpMsg
+   exit -1
+fi
+
+dataDir=$dataRoot$1
+
+# Comment out this if-fi block if testing with already existing (non-real-time) data.
+if [ -d ${dataDir} ] || [ -f ${dataDir} ]
+then
+   echo $dataDir "already seems to exist.  Please pick another name."
+   exit -1
+fi
+
+echo "Data directory will be created in" $dataRoot "and will have path" $dataDir
+
+mkdir $dataDir
+cd $dataDir
+echo "Now starting AFNI in "`pwd`
+echo
+afni -rt -seehidden -yesplugouts                     \
+     # -com "SWITCH_UNDERLAY epi_r1+orig"   \
+     # -com "SWITCH_OVERLAY func_slim+orig" &
+
+# prompt_user -pause        "         \
+ # - open graph window                \
+ # - FIM->Ignore->2                   \
+ # - FIM->Pick Ideal->epi_r1_ideal.1D \
+ # - close graph window"
+
