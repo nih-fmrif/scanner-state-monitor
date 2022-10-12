@@ -248,18 +248,20 @@ class event_catcher():
       # small delta (here 3 seconds) to determine the separation of the flags, to figure out
       # if a patient has been registered on the console interface or not.
       if ((patient_time_object_registered - patient_time_object_deregistered).total_seconds() < 3):
-         print ("No patient registered")
+         scanner_state = "No patient registered"
       else:
-         print ("Patient registered")
+         scanner_state = "Patient registered"
 
       # Otherwise - take a look at the last event in the list to determine the current state
       # of the scanner.
       if ((scanner_events_ordered[-1][0] == 'MSR_OK') or
           (scanner_events_ordered[-1][0] == 'MSR_STARTED')):
-         print ("Scanner is acquiring data.")
+         scanner_state = "Scanner is acquiring data."
 
       if ((scanner_events_ordered[-1][0] == 'MSR_MEAS_FINISHED') or
           (scanner_events_ordered[-1][0] == 'MSR_ACQ_FINISHED') or
           (scanner_events_ordered[-1][0] == 'MSR_SCANNER_FINISHED')):
-         print ("Scanner is done acquiring data.")
+         scanner_state = "Scanner is done acquiring data."
+
+      return (scanner_state)
 

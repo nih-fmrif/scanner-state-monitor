@@ -256,29 +256,36 @@ class event_catcher():
                                                                           '%Y-%m-%d-%H-%M-%S.%f')
 
       if (patient_time_object_registered < patient_time_object_deregistered):
-         print ("No patient registered")
+         scanner_state = "No patient registered"
       else:
-         print ("Patient registered")
+         scanner_state = "Patient registered"
 
       # Otherwise - take a look at the last event in the list to determine the current state
       # of the scanner.
 
       if (scanner_events_ordered[-1][0] == 'downloadDone'):
          print ("Pulse sequence is downloaded into scanner and ready for pre-scanning.")
+         scanner_state = "pulse sequence downloaded"
 
       if (scanner_events_ordered[-1][0] == 'Sending ready'):
          print ("Pre-scanning is complete and scanner is prepped and ready to acquire data.")
+         scanner_state = "pulse sequence prepped"
 
       if (scanner_events_ordered[-1][0] == 'Send Image Install Request to TIR'):
          print ("Scanner is acquiring data.")
+         scanner_state = "Scanner is acquiring data."
 
       if (scanner_events_ordered[-1][0] == 'Got scanStopped'):
          print ("Scanner is done acquiring data.")
+         scanner_state = "Scanner is done acquiring data."
 
       if ((scanner_events_ordered[-1][0] == 'gotImgXfrDone') or
           (scanner_events_ordered[-1][0] == 'Got reconStop') or
           (scanner_events_ordered[-1][0] == 'updateOnReconDone')):
          print ("Scanner has completed data reconstruction.")
+         scanner_state = "Image reconstruction is done."
 
       print ("Last / most recent event in event queue is %s" % scanner_events_ordered[-1][0])
+
+      return (scanner_state)
 
