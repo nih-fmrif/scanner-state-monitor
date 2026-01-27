@@ -24,24 +24,26 @@ async def poll_state(state_url, polling_interval):
 
       try:
 
-         # get date and time at which scanner state is polled
-         current_state_check_date_time = datetime.datetime.now().strftime("%Y_%m_%d_%H:%M:%S")
-
          # poll URL where state is published to
          state = requests.get(state_url)
-
-         # Convert published JSON struct to Python dictionary
-         data = state.json()
-
-         # Extract desired information from packet
-         current_state_dict = data['all_events']
-
-         # print('   \n' + data['scanner AE Title'] + " is in state " + data['scanner_state'] + " and occurred at time: " + data['scanner_last_event_time']
-               # + ' detected at ' + current_state_check_date_time + '\n')
 
       except:
 
           print("Couldn't reach URL: %s to determine scanner state." % state_url)
+
+          continue # To next iteration of while loop, skipping code below
+
+      # get date and time at which scanner state is polled
+      current_state_check_date_time = datetime.datetime.now().strftime("%Y_%m_%d_%H:%M:%S")
+
+      # Convert published JSON struct to Python dictionary
+      data = state.json()
+
+      # Extract desired information from packet
+      current_state_dict = data['all_events']
+
+      print('   \n   Scanner: ' + data['scanner AE Title'] + " from vendor: " + data['scanner vendor'] + " has events: " + str(data['all_events'])
+            + ' detected at ' + current_state_check_date_time + '\n')
 
       process_current_state (current_state_dict)
 
