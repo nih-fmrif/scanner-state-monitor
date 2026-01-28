@@ -7,7 +7,7 @@ import asyncio
 import requests
 import datetime
 import logging
-import json, ast
+import json
 
 
 
@@ -62,10 +62,8 @@ def process_current_state(state_to_process):
    scanner_ae_title   = state_to_process['scanner AE Title']
    scanner_vendor     = state_to_process['scanner vendor']
 
-   # Convert dictionary of scanner state events to string, so they can be put
-   # into a time-ordered list
-   state_str          = ast.literal_eval(str(state_to_process['all_events']))
-
+   # Convert dictionary of scanner state events directly into time-ordered list,
+   # using lambda function
    time_ordered       = sorted(state_to_process['all_events'].items(),
                                key=lambda item: item[1], reverse=False)
 
