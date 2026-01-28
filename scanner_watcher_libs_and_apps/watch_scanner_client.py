@@ -6,12 +6,16 @@
 import asyncio
 import requests
 import datetime
+import logging
 import json, ast
 
 
 
 state_poll_interval = 1.0   # in seconds
 state_src_url       = 'http://localhost:5000/scanner_state'
+logging.basicConfig(format='%(asctime)s %(message)s', datefmt='%Y_%m_%d %H:%M:%S :', level=logging.WARNING)
+scan_event_logger   = logging.getLogger(__name__)
+
 
 
 
@@ -43,9 +47,10 @@ async def poll_state(state_url, polling_interval):
       # Extract desired information from packet
       current_state_dict = data['all_events']
 
-      print('   \n   Scanner: ' + data['scanner AE Title'] + " from vendor: "
-            + data['scanner vendor'] + " has events: " + str(data['all_events'])
-            + ' detected at ' + current_state_check_date_time + '\n')
+      scan_event_logger.info('Scanner: ' + data['scanner AE Title']
+            + " from vendor: " + data['scanner vendor'] + " has events: "
+            + str(data['all_events']) + ' detected at '
+            + current_state_check_date_time + '\n')
 
       process_current_state (data)  # Pass along request response as json, and
                                     # process appropriately in calling function.
@@ -64,11 +69,12 @@ def process_current_state(state_to_process):
    time_ordered       = sorted(state_to_process['all_events'].items(),
                                key=lambda item: item[1], reverse=False)
 
-   print ("\n *** For scanner %s, from vendor %s, current order of events is:\n"
-          % (scanner_ae_title, scanner_vendor))
+   print ("\n *** For scanner %s, from vendor %s, current order of events at %s is:\n"
+          % (scanner_ae_title, scanner_vendor, datetime.datetime.now().strftime("%Y_%m_%d_%H:%M:%S")))
 
    for events in time_ordered:
-      print ("Event: %32s occurred at %26s" % (events[0], events[1]))
+      print ("Event, %32s, occurred at %26s" % (events[0], events[1]))
+   print ("\n")
 
    return
 
