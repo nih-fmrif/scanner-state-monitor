@@ -51,7 +51,7 @@ class event_catcher():
 
             self.log_files_dict  = dict.fromkeys(self.log_files)
 
-            self.latest_files    = -3 # use this to determine how many of the
+            self.latest_files    = -5 # use this to determine how many of the
                                       # last / latest log files written to disk
                                       # are read in and searched.
 
