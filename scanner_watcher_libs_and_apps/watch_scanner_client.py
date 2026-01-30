@@ -10,7 +10,6 @@ import logging
 import json
 
 
-
 state_poll_interval = 0.5   # in seconds
 state_src_url       = 'http://localhost:5000/scanner_state'
 logging.basicConfig(format='%(asctime)s %(message)s', datefmt='%Y_%m_%d %H:%M:%S :', level=logging.WARNING)
