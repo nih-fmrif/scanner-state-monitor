@@ -1,9 +1,7 @@
 
-#!/usr/bin/python
+#!/usr/bin/env python3
 
-
-
-import SocketServer
+import socketserver
 import struct
 import os, sys, getopt
 
@@ -15,7 +13,7 @@ FILE = "/home/rtadmin/RTafni/tmp/dcmRxInfo.log"
 
 
 
-class MyTCPHandler(SocketServer.BaseRequestHandler):
+class MyTCPHandler(socketserver.BaseRequestHandler):
     """
     The RequestHandler class for our server.
 
@@ -56,7 +54,7 @@ class MyTCPHandler(SocketServer.BaseRequestHandler):
 
 
 
-class MySocketServer(SocketServer.TCPServer):
+class MySocketServer(socketserver.TCPServer):
     """
     The class for our server.
     It adds a counter for connection number.
@@ -64,7 +62,7 @@ class MySocketServer(SocketServer.TCPServer):
     """
     cno = 0 # counter
     def __init__(self, server_address, RequestHandlerClass):
-      SocketServer.TCPServer.__init__(self, server_address, RequestHandlerClass)
+      socketserver.TCPServer.__init__(self, server_address, RequestHandlerClass)
       self.cno = 0
 
 
