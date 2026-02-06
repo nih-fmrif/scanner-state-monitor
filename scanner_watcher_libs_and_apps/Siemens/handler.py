@@ -194,9 +194,14 @@ class event_catcher():
                      date_time_string   = this_event_date.group() + ' ' + this_event_time.group()
                      date_time_object   = datetime.datetime.strptime(date_time_string, '%Y-%m-%d %H:%M:%S.%f')
 
-                  # Make the event date and time a contiguous string, with the delimiter being a '-', between YYYY, MM, DD,
-                  # HH, MM, and SS.  Should make ordered sorting based on this a bit more straight-forward.
-                  self.scanner_events_dict[event_to_find] = date_time_object.strftime('%Y-%m-%d-%H-%M-%S.%f')
+                  # Previously, converted date object to string to store as
+                  # dictionary value, using:
+                  #
+                  #    date_time_object.strftime('%Y-%m-%d-%H-%M-%S.%f')
+                  #
+                  # and sorted on that string. Now, use time object:
+                  self.scanner_events_dict[event_to_find] = date_time_object
+                  # and sort on that object directly.
 
                   break # Should break out the "this_line" loop, and go to next
                         # iteration in "event_to_find" loop.
@@ -241,11 +246,9 @@ class event_catcher():
       for event in scanner_events.keys():
 
          if (event == 'Patient registered'):
-            patient_time_object_registered   = datetime.datetime.strptime(scanner_events[event],
-                                                                          '%Y-%m-%d-%H-%M-%S.%f')
+            patient_time_object_registered   = scanner_events[event]
          if (event == 'EVENT_PATIENT_DEREGISTERED'):
-            patient_time_object_deregistered = datetime.datetime.strptime(scanner_events[event],
-                                                                          '%Y-%m-%d-%H-%M-%S.%f')
+            patient_time_object_deregistered = scanner_events[event]
 
       # In the Siemens log, the 'Patient registered' message shows up *BOTH* when the patient
       # is registered, *AND* when the patient is deregistered.  However, in the latter case,
@@ -253,10 +256,8 @@ class event_catcher():
       # small delta (here 3 seconds) to determine the separation of the flags, to figure out
       # if a patient has been registered on the console interface or not.
       if ((patient_time_object_registered - patient_time_object_deregistered).total_seconds() < 3):
-         # scanner_state = 'No patient registered'
          scanner_state = 'End scanning session'
       else:
-         # scanner_state = 'Patient registered'
          scanner_state = 'Start scanning session'
 
       # Now, iterate through list of events, translate dictionary keys to more
