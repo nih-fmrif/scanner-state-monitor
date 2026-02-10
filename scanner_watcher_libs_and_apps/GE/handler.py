@@ -10,8 +10,6 @@ import      datetime
 
 
 
-
-
 class event_catcher():
 
    """
@@ -207,14 +205,12 @@ class event_catcher():
 
                # print ("Event %45s happened at date: %s, time: %s" % (event_to_find, this_event_date.group(), this_event_time.group()))
 
-               # self.scanner_events_dict[event_to_find] = this_event_date.group() + ' ' + this_event_time.group()
-
                try:
                   # Take time string as extract from the scanner logs, i.e. Day Mon Date Year HH:MM:SS.ms
                   date_time_object        = datetime.datetime.strptime(this_event_date_time, '%a %b %d %Y %H:%M:%S.%f')
 
-                  # and convert it to completely numerical form, i.e. yyyy-mm-dd-HH-MM-SS.us, which can then be ordered trivially
-                  self.scanner_events_dict[event_to_find] = date_time_object.strftime('%Y-%m-%d-%H-%M-%S.%f')
+                  # Use time object as dictionary value
+                  self.scanner_events_dict[event_to_find] = date_time_object
 
                   # print ("Event %45s happened at date-time: %s" % (event_to_find, self.scanner_events_dict[event_to_find]))
 
@@ -251,16 +247,8 @@ class event_catcher():
 
       """
 
-      for event in scanner_events.keys():
-
-         if (event == 'Calling startSession'):
-            patient_time_object_registered   = datetime.datetime.strptime(scanner_events[event],
-                                                                          '%Y-%m-%d-%H-%M-%S.%f')
-         if (event == 'operator confirmed'):
-            patient_time_object_deregistered = datetime.datetime.strptime(scanner_events[event],
-                                                                          '%Y-%m-%d-%H-%M-%S.%f')
-
-      if (patient_time_object_registered < patient_time_object_deregistered):
+      # Use time objects (stored as dictionary values) directly.
+      if (scanner_events['Calling startSession'] < scanner_events['operator confirmed']):
          scanner_state = "End scanning session"
       else:
          scanner_state = "Start scanning session"
