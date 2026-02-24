@@ -1,0 +1,15 @@
+
+[Unit]
+Description=Siemens real-time DICOM export listener
+After=network.target
+StartLimitIntervalSec=0
+
+[Service]
+Type=simple
+Restart=always
+RestartSec=1
+ExecStart=/usr/bin/env python3  /home/rtadmin/RTafni/src/mrs_staem/scanner_watcher_libs_and_apps/Siemens/bin/dicom_export_listener.py -h 192.168.2.9 -p 8111 -f /tmp/dcmRxInfo.log
+
+[Install]
+WantedBy=multi-user.target
+

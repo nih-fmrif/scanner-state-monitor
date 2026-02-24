@@ -10,8 +10,6 @@ import      datetime
 
 
 
-
-
 class event_catcher():
 
    """
@@ -20,6 +18,8 @@ class event_catcher():
    """
 
 
+
+   read_scanner_info_methods = []
 
    def __init__(self, scanner_vendor='ge', platform_version='dv26.0_r02'):
 
@@ -49,7 +49,7 @@ class event_catcher():
 
             self.log_files_dict  = dict.fromkeys(self.log_files)
 
-            self.latest_files    = -3 # use this to determine how many of the
+            self.latest_files    = -5 # use this to determine how many of the
                                       # last / latest log files written to disk
                                       # are read in and searched.
 
@@ -57,18 +57,18 @@ class event_catcher():
             self.event_time_00   = re.compile(r'\d{2}:\d{2}:\d{2}.\d{6}')  # time format: HH:MM:SS.microeconds
 
             self.scanner_events  = ['Calling startSession',                # Start of session / patient registered.
-                                    'Save Series',                         # As named - probably for when a series' parameters and prescription have been saved for scanning.
-                                    ' series UID',                         # Create series UID / new series.
-                                    'downloadDone',                        # sequence downloaded into sequencer.
+                                    # 'Save Series',                         # As named - probably for when a series' parameters and prescription have been saved for scanning. Commented out as causing later events to not show up in list.
+                                    # ' series UID',                         # Create series UID / new series.
+                                    # 'downloadDone',                        # sequence downloaded into sequencer.
                                     'Sending ready',                       # Scan or Prep scan pressed.
                                     'Send Image Install Request to TIR',   # This should be common to both mouse click and keyboard button press to detect start of scanning and data acquisition
                                     'Got scanStopped',                     # Scan completed.
                                     'Entry gotScanStopped',                # Stop scan button pressed.
                                     'EM_HC_STOP_BUTTON_PRESS',             # Stop scan button pressed.
-                                    'exam_path of image',                  # Should indicate as to where images are written to on disk.
-                                    'updateOnReconDone',                   # Check scan log for most recent Exam(Ex)/series(Ser)/image(Img) numbers from recon.
-                                    'Got reconStop',                       # Recon stopped?
-                                    'gotImgXfrDone',                       # Images transfer to ???
+                                    # 'exam_path of image',                  # Should indicate as to where images are written to on disk.
+                                    # 'updateOnReconDone',                   # Check scan log for most recent Exam(Ex)/series(Ser)/image(Img) numbers from recon.
+                                    # 'Got reconStop',                       # Recon stopped?
+                                    # 'gotImgXfrDone',                       # Images transfer to ???
                                     # 'haltsys',                             # system shutdown / reboot / restart - this is a running process (from ps) not from sysytem log
                                     # 'stopvmx',                             # software shutdown (endsession)     - this is a running process (from ps) not from sysytem log
                                     'resetMGDStart',                       # Start reset of hardware sequencers (TPS reset).
@@ -80,8 +80,9 @@ class event_catcher():
             # Initialize dictionary values with nonsensical value, so if an
             # event is not found in the logs, it can still processed by the
             # 'sort_dict' routine.
-            self.scanner_events_dict = dict(zip(self.scanner_events, repeat('AAA AAA 00 0000 (i.e. did not occur)')))
+            self.scanner_events_dict = dict(zip(self.scanner_events, repeat('0000-00-00-00-00-00.000000 (i.e. did not occur)')))
 
+      self.read_scanner_info_methods = [self.read_header_pool]
 
 
    def sort_dict (self, dictionary_to_sort,
@@ -204,14 +205,12 @@ class event_catcher():
 
                # print ("Event %45s happened at date: %s, time: %s" % (event_to_find, this_event_date.group(), this_event_time.group()))
 
-               # self.scanner_events_dict[event_to_find] = this_event_date.group() + ' ' + this_event_time.group()
-
                try:
                   # Take time string as extract from the scanner logs, i.e. Day Mon Date Year HH:MM:SS.ms
                   date_time_object        = datetime.datetime.strptime(this_event_date_time, '%a %b %d %Y %H:%M:%S.%f')
 
-                  # and convert it to completely numerical form, i.e. yyyy-mm-dd-HH-MM-SS.us, which can then be ordered trivially
-                  self.scanner_events_dict[event_to_find] = date_time_object.strftime('%Y-%m-%d-%H-%M-%S.%f')
+                  # Use time object as dictionary value
+                  self.scanner_events_dict[event_to_find] = date_time_object
 
                   # print ("Event %45s happened at date-time: %s" % (event_to_find, self.scanner_events_dict[event_to_find]))
 
@@ -223,13 +222,15 @@ class event_catcher():
 
 
 
-   def determine_state_and_actions (self, scanner_events_ordered):
+   def determine_state_and_actions (self, scanner_events):
 
       """
-         This function will take a list of time-ordered events, i.e.
-         the argument 'scanner_events_ordered', and from that, figure
-         out what the scanner is doing, what state it is in, and what
-         actions this script / library / object can drive.
+         This function will take a list of scanner events, i.e.  the
+         argument 'scanner_events', and translate that into a more
+         'standardized' set of scanner events, with the time of each
+         event, figure out what the scanner is doing, what state it
+         is in, and what actions this script / library / object can
+         drive.
 
          This will, of course, be specific to each scanner platform -
          i.e. linking a message or label to a specific scanner state.
@@ -246,46 +247,41 @@ class event_catcher():
 
       """
 
-      for event_time_pair in scanner_events_ordered:
-
-         if (event_time_pair[0] == 'Calling startSession'):
-            patient_time_object_registered   = datetime.datetime.strptime(event_time_pair[1],
-                                                                          '%Y-%m-%d-%H-%M-%S.%f')
-         if (event_time_pair[0] == 'operator confirmed'):
-            patient_time_object_deregistered = datetime.datetime.strptime(event_time_pair[1],
-                                                                          '%Y-%m-%d-%H-%M-%S.%f')
-
-      if (patient_time_object_registered < patient_time_object_deregistered):
-         scanner_state = "No patient registered"
+      # Use time objects (stored as dictionary values) directly.
+      if (scanner_events['Calling startSession'] < scanner_events['operator confirmed']):
+         scanner_state = "End scanning session"
       else:
-         scanner_state = "Patient registered"
+         scanner_state = "Start scanning session"
 
-      # Otherwise - take a look at the last event in the list to determine the current state
-      # of the scanner.
+      # Iterate through scanner events list, and replace vendor's log flag with 'standard'
+      standardized_scanner_events = {}
+      for event in scanner_events.keys():
+         if (event == 'Calling startSession'):
+            standardized_scanner_events['Start scanning session'] = scanner_events[event]
+         if (event == 'Sending ready'):
+            standardized_scanner_events['Pulse sequence prepped'] = scanner_events[event]
+         if (event == 'Send Image Install Request to TIR'):
+            standardized_scanner_events['Scanner is acquiring data'] = scanner_events[event]
+         if ((event == 'Entry gotScanStopped') or (event == 'EM_HC_STOP_BUTTON_PRESS')):
+            standardized_scanner_events['Scan stopped before completion'] = scanner_events[event]
+         if (event == 'Got scanStopped'):
+            standardized_scanner_events['Scanner is done acquiring data'] = scanner_events[event]
+         if (event == 'operator confirmed'):
+            standardized_scanner_events['End scanning session'] = scanner_events[event]
 
-      if (scanner_events_ordered[-1][0] == 'downloadDone'):
-         print ("Pulse sequence is downloaded into scanner and ready for pre-scanning.")
-         scanner_state = "pulse sequence downloaded"
+      # return (scanner_state)
+      return (standardized_scanner_events)
 
-      if (scanner_events_ordered[-1][0] == 'Sending ready'):
-         print ("Pre-scanning is complete and scanner is prepped and ready to acquire data.")
-         scanner_state = "pulse sequence prepped"
 
-      if (scanner_events_ordered[-1][0] == 'Send Image Install Request to TIR'):
-         print ("Scanner is acquiring data.")
-         scanner_state = "Scanner is acquiring data."
 
-      if (scanner_events_ordered[-1][0] == 'Got scanStopped'):
-         print ("Scanner is done acquiring data.")
-         scanner_state = "Scanner is done acquiring data."
+   def read_header_pool (self):
 
-      if ((scanner_events_ordered[-1][0] == 'gotImgXfrDone') or
-          (scanner_events_ordered[-1][0] == 'Got reconStop') or
-          (scanner_events_ordered[-1][0] == 'updateOnReconDone')):
-         print ("Scanner has completed data reconstruction.")
-         scanner_state = "Image reconstruction is done."
+      """
+         Temporarily empty method to start building up queue of parallel-ly executing events,
+         to be handled concurrently.
+      """
 
-      print ("Last / most recent event in event queue is %s" % scanner_events_ordered[-1][0])
+      while 1:
 
-      return (scanner_state)
+         print ("Should be reading raw header pool eventually, not doing anything else now.")
 

@@ -4,16 +4,15 @@
 The scripts initially checked into this repository leverage Siemens' "real-time
 data export" feature, enabling DICOM files to be written to a local or network
 volume, as they are reconstructed and become available on the console.  To turn
-this feature on, please reach out to your Siemens research contact to obtain
-instructions as to how to do this.
+this feature on, reach out to your Siemens research contact for instructions on
+how to do this.
 
 When activating this feature, the console is configured to write DICOM image
 data to a specified location, while simultaneously sending messages via TCP to
-a specified IP address and port.  The location and IP can be local to the
-scanner console, or remote to the console, but accessible from it.  For
-example, on FMRIF's scanners, the scanner is configured to export DICOM data
-to a network Samba share, exported from a linux computer, and mounted locally
-at:
+a specified IP address and port.  The location and IP can be local or remote to
+the scanner console, but in either case, must be accessible from it. For example,
+on FMRIF's scanners, the scanner is configured to export DICOM data to a network
+Samba share, exported from a linux computer, and mounted locally at:
 
    V:\DICOM
 
@@ -22,11 +21,15 @@ on the scanner's console computer.
 The same linux computer is also configured to listen to the messages sent via
 TCP by the console, telling what state the scanner is in.
 
-For images to be written to a specified volume, a listener **must** be running
-on the specified IP address and network port.  This is accomplished with the
-"dcm_listener_RT.py" script in this repository. Initial implementations of this
-scripts had the messages about the scanner state output to a file on disk.  The
-implementation at the time this was written has the messages written to a FIFO
+For images to be written to the specified volume, a listener **must** be running
+on the specified IP address and network port.  This is accomplished by setting
+up a systemd 'dicom_listener' service (defined using the materials in the 'usr'
+folder at the same level as this README), which in turn, depends on the
+"dicom_export_listener.py' script in the 'bin' directory here.  The sample DICOM
+listener service configuration should be copied to the corresponding location
+on the host system, then enabled and started, as with any other systemd service.
+Previous implementations had the messages about the scanner state output to a
+file on disk, while the current implementation writes log messages to a FIFO
 buffer, which can be accessed via the "tail" command like a file on disk being
 appended to.
 
@@ -36,11 +39,10 @@ stopped.  Note that because of the asynchronous nature of image reconstruction
 versus data acquisition, it is possible for reconstruction to continue, images
 written to disk, etc, **after** an acquisition ended message has been received.
 
-This script is launched via the "listener_image_start" script included here,
-which takes care of setting the appropriate IP and port to listen on, as well
-as setting up the FIFO to where messages are directed.  "listener_image_stop"
-will seach for the correct process actually running the listener, and will do
-the appropriate clean-up.
+The sample systemd service configuration provided here takes care of setting
+the appropriate IP and port to listen on, as well as setting up the FIFO where
+messages are written to.  The values specified here must match what is entered
+into Siemens' tools to activate real-time DICOM export.
 
 The "start_AFNI" script does exactly what its names says, starts up AFNI. But
 it does a few other useful things.  It will create a location/folder (specified
