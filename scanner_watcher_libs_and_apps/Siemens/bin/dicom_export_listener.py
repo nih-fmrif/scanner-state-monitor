@@ -4,6 +4,7 @@
 import socketserver
 import struct
 import os, sys, getopt
+import datetime
 
 
 
@@ -35,12 +36,22 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
                 # no more data
                 break
 
-            lines = data.splitlines ()
+            lines = data.decode('utf-8').splitlines()
 
             if len(lines) > 0:
-                for eachLine in lines:
+                for each_line in lines:
                     dcmMsgPipe = open(FILE, 'a')
-                    dcmMsgPipe.write (eachLine + '\n')
+
+                    # Check for MEAS_ in message string, and if present, add
+                    # current system date and time to that line.
+                    if "MEAS_".casefold() in each_line.casefold():
+                        # Pre-pend date and time, match format already used in
+                        # Siemens' logs, i.e. date: yyyy-mm-dd, and time:
+                        # HH:MM:SS.milliseconds
+                        current_time = datetime.datetime.now()
+                        dcmMsgPipe.write (current_time.strftime("%Y-%m-%d %H:%M:%S.%f")[:-3] + ' ' + each_line + '\n')
+                    else:
+                        dcmMsgPipe.write (each_line + '\n')
 
                     # These are needed only for files, not pipes
                     # dcmMsgPipe.flush ()
