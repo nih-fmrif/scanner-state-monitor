@@ -9,7 +9,7 @@ import os, sys, getopt
 
 HOST = "192.168.2.5"    # listening host for real time server
 PORT = 5000             # port on server real time is listening on
-FILE = "/home/rtadmin/RTafni/tmp/dcmRxInfo.log"
+FILE = "/tmp/.dcmRxInfo.log"
 
 
 
