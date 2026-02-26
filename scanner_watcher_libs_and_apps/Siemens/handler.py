@@ -163,6 +163,11 @@ class event_catcher():
          events in this scanner object's "self.scanner_events_dict" dictionary
          of all possible events on a scanner, and return a dictionary of events
          and their time of occurence.
+
+         This is also the anchor function that is called every time the scanner
+         state is queried, so might be able to serve as a base for setting up
+         and calling asynchronous events.
+
       """
 
       # Reverse order of log, as above.
