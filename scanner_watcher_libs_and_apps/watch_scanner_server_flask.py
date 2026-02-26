@@ -45,16 +45,7 @@ class _EventHandler():
 
       log_lines = self.scanner_event_detector.process_scanner_logs(self.log_file_dir, log_file_read_mode=self.log_file_read_mode)
 
-      # # The sorting on the scanner event dictionary returns a list of tuples
-      # scanner_log_events_and_times = self.scanner_event_detector.sort_dict(self.scanner_event_detector.generate_dict_of_scanner_events(log_lines))
-      # event_dict = {} # about actually returns an array (not dictionary - since it is ordered), so create an actually dictionary here, for ease of
-                        # # working with JSON
-      # for event in scanner_log_events_and_times:
-
-         # print ("Event %36s happened at %s" % (event[0], event[1]))
-         # event_dict[event[0]] = event[1]
-
-      # Instead, just grab the dictionary of events itself
+      # Grab the dictionary of events from the scanner's logs
       scanner_log_events_and_times = self.scanner_event_detector.generate_dict_of_scanner_events(log_lines)
 
       # Use dictionary to represent scanner info and state with a set of key-value pairs
