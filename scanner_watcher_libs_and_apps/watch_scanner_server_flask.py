@@ -55,7 +55,6 @@ class _EventHandler():
 
 
 
-
 # Default for ReST GET method
 @app.route('/scanner_state')
 
