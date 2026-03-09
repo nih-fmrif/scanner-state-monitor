@@ -10,8 +10,6 @@ import      datetime
 
 
 
-
-
 class event_catcher():
 
    """
@@ -57,7 +55,7 @@ class event_catcher():
                                                                            #                          dd  == day in month)
 
             self.scanner_events  = ['MSR_OK',
-                                    'SCANNER prepare finished ok',                      # Prescanning / adjustments complete?
+                                    'SCANNER prepare finished ok',         # Prescanning / adjustments complete?
                                     'MSR_STARTED',
                                     'MSR_SCANNER_FINISHED',
                                     'MSR_ACQ_FINISHED',
@@ -65,8 +63,6 @@ class event_catcher():
                                     'Patient registered',                  # Patient registered and deregistered
                                     'EVENT_PATIENT_DEREGISTERED']          # Patient deregistered only
 
-            # self.scanner_events_dict = dict.fromkeys(self.scanner_events)
-            #
             # Initialize dictionary values with nonsensical value, so if an
             # event is not found in the logs, it can still processed by the
             # 'sort_dict' routine.
@@ -236,13 +232,9 @@ class event_catcher():
          However, the plan will be to make the states more generic and
          platform agnostic.
 
-         The events fed to this function should be an event label that
-         is paired with a time event, in the format:
-
-               YYYY-MM-DD-HH-MM-SS.ususus
-
-         so that a standard datetime call can be used for any parsing
-         that might be 'time-sensitive'.
+         The events fed to this function should be an event label (as
+         the 'key' for that event in the dictionary, and the 'value'
+         corresponding to that key is now a Python 'datetime' object.
 
       """
 
