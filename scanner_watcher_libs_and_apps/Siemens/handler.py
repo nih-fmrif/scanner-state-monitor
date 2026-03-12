@@ -10,12 +10,6 @@ import      datetime
 
 
 
-import      select
-import      asyncio
-export_log_loop = asyncio.get_event_loop()
-
-
-
 class event_catcher():
 
    """
@@ -75,21 +69,10 @@ class event_catcher():
             # self.scanner_events_dict = dict(zip(self.scanner_events, repeat('AAA AAA 00 0000 (i.e. did not occur)')))
             self.scanner_events_dict = dict(zip(self.scanner_events, repeat('0001-01-01-00-00-00.001')))
 
-      # try:
-         # export_log_loop.run_until_complete(self.check_inline_export_log(self.scanner_events_dict,
-                                            # export_log='/tmp/.dcmRxInfo.log'))
-         # # asyncio.ensure_future(self.check_inline_export_log(self.scanner_events_dict,
-                                                       # # export_log='/tmp/.dcmRxInfo.log'))
-         # # export_log_loop.run_forever()
-      # # except KeyboardInterrupt:
-         # # pass
-      # finally:
-         # export_log_loop.close()
 
 
-
-   async def check_inline_export_log (self, scanner_events_dictionary,
-                                      export_log='/var/log/dcmRxInfo.log'):
+   def check_inline_export_log (self, scanner_events_dictionary,
+                                export_log='/var/log/dcmRxInfo.log'):
 
       """
          This routine will parse the log output from the inline real-time export log.
@@ -110,11 +93,8 @@ class event_catcher():
 
             if data:
                current_line = data.strip()
-               # print (f"Read: {current_line}")
 
                if ('MEAS_' in current_line):
-                  # print ('MEAS_ flag received')
-
                   meas_event_time = event_date_time_00.search(current_line)
                   meas_event_datetime = datetime.datetime.strptime(meas_event_time.group(),
                                                                    '%Y-%m-%d  %H:%M:%S')
@@ -126,11 +106,9 @@ class event_catcher():
                   # print ('Image file written')
                   pass
                else:
-                  print ('Unknown line received')
+                  print (f'Unknown line received: {current_line}')
             else:
                pass
-
-      await asyncio.sleep(0.1)
 
       return
 
