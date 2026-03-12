@@ -39,6 +39,38 @@ class _EventHandler():
          self.scanner_event_detector = GE.handler.event_catcher()
          self.log_file_read_mode     = 'rb'
 
+      self.scanner_event_detector.sort_dict = self.sort_dict
+
+
+
+   def sort_dict (self, dictionary_to_sort,
+                        sort_by = 'value',
+                        sort_reverse_time_order = False):
+
+      """
+         This routine will take a dictionary, where we expect the 'value' of
+         each key-value pair to be a date/time element.  This routine will
+         then sort on time - earliest to latest, or latest-to-earliest can be
+         chosen by setting 'sort_reverse_time_order' to be False or True,
+         respectively.
+
+         The option to sort on dictionary keys is also retained, by setting
+         the value of the 'sort_by' argument to 'key'.  However, this is not
+         expected to be heavily used.
+
+         This routine will return an ordered ascending or descending list of
+         key-value pairs.
+      """
+
+      if (sort_by == 'key'):
+         index_to_sort_on = 0
+      else:
+         index_to_sort_on = 1
+
+      return sorted(dictionary_to_sort.items(),
+                    key = lambda x:x[index_to_sort_on],
+                    reverse = sort_reverse_time_order)
+
 
 
    def read_scanner_state(self):
