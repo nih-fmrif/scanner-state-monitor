@@ -3,6 +3,7 @@
 
 
 import   time, os, re, sys
+import   gzip
 
 sys.path.insert(0, os.path.abspath('.'))
 import   Siemens
@@ -73,9 +74,70 @@ class _EventHandler():
 
 
 
+   def process_scanner_logs (self, log_file_dir, log_files_dict, latest_files,
+                             log_file_read_mode='rb'):
+      """
+         On scanners, this routine takes the directory containing the
+         MR scanner's log files, and using the dictionary of log file
+         names (i.e. self.log_files_dict) sorts them by modification
+         time.  It then returns the contents of the latest written
+         files on disk.
+      """
+
+      for each_file in log_files_dict:
+         log_files_dict[each_file] =  os.path.getmtime(log_file_dir + '/' + each_file)
+
+      time_sorted_logs = self.sort_dict(log_files_dict)
+
+      log_lines = []
+
+      # For initial implementation, try reading "just" the last / latest 3
+      # log files only (for performance reasons).  I know that sometimes,
+      # the most current log files lack all events, and sometimes even the
+      # explicit current date entry.  So try this for now, till a better /
+      # more efficient way is developed to parse through more of the logs.
+
+      for each_file in time_sorted_logs[latest_files:]:
+
+         file_name = each_file[0] # i.e. the name of the file. [1] is its
+                                  # modification time.
+         file_path = log_file_dir + '/' + file_name
+
+         if ("gz" in file_name):
+            print ("Prepare for reading   compressed file: %s" % file_name)
+            log_file_open_function = gzip.open
+         else:
+            print ("Prepare for reading uncompressed file: %s" % file_name)
+            log_file_open_function = open
+
+         # Use the "list.extend()" method here, to add / stack the entries
+         # from each log file together, into one LARGE list of log entries.
+         # If the more common "list.append()" is used, then the whole list
+         # of entries becomes a list of lists of entries from each file -
+         # which is not what is desired.  It preferable to have the entire
+         # content of all log files in a single, time-ordered, list.  This
+         # is generated, and returned.
+
+         with log_file_open_function (file_path, mode=log_file_read_mode) as raw_log:
+             this_file_lines = raw_log.readlines()
+
+             log_lines.extend(this_file_lines)
+
+      return log_lines
+
+
+
    def read_scanner_state(self):
 
-      log_lines = self.scanner_event_detector.process_scanner_logs(self.log_file_dir, log_file_read_mode=self.log_file_read_mode)
+      """
+         Entry point into calling scanner specific capabilities to poll vendors'
+         logs.
+      """
+
+      log_lines = self.process_scanner_logs(self.log_file_dir,
+                                            self.scanner_event_detector.log_files_dict,
+                                            self.scanner_event_detector.latest_files,
+                                            log_file_read_mode=self.log_file_read_mode)
 
       # Grab the dictionary of events from the scanner's logs
       scanner_log_events_and_times = self.scanner_event_detector.generate_dict_of_scanner_events(log_lines)
