@@ -193,6 +193,18 @@ class event_catcher():
 
 
 
+   """
+
+      Up till this point in this 'handler' module there are matching/corresponding
+      functions in each vendors' library, but with implementations specific to each
+      vendor.
+
+      Below this will likely be functions specific to each vendors' platform.
+
+   """
+
+
+
    def read_header_pool (self):
 
       """

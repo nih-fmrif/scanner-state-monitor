@@ -70,49 +70,6 @@ class event_catcher():
 
 
 
-   def check_inline_export_log (self, scanner_events_dictionary,
-                                export_log='/var/log/dcmRxInfo.log'):
-
-      """
-         This routine will parse the log output from the inline real-time export log.
-         It will determine the start (MEAS_START) and stop (MEAS_FINISHED) of image
-         reconstruction, as flags for these are not reliably written to the system's
-         logs on the console that routines here get most of their info from.
-      """
-
-      event_date_time_00 = re.compile(r'\d{4}-\d{2}-\d{2}\s+\d{2}:\d{2}:\d{2}')
-
-      with open (export_log, 'r') as fifo_rt:
-         print (f"FIFO '{export_log}' opened for reading. Waiting for data...")
-
-         while True:
-            select.select([fifo_rt], [], [], 0.1)
-
-            data = fifo_rt.read()
-
-            if data:
-               current_line = data.strip()
-
-               if ('MEAS_' in current_line):
-                  meas_event_time = event_date_time_00.search(current_line)
-                  meas_event_datetime = datetime.datetime.strptime(meas_event_time.group(),
-                                                                   '%Y-%m-%d  %H:%M:%S')
-                  if ('MEAS_START' in current_line):
-                     print ("Image recon started at: %s" % str(meas_event_datetime))
-                  else: # MEAS_FINISHED
-                     print ("Image recon ended at: %s" % str(meas_event_datetime))
-               elif ('DICOMIMA' in current_line):
-                  # print ('Image file written')
-                  pass
-               else:
-                  print (f'Unknown line received: {current_line}')
-            else:
-               pass
-
-      return
-
-
-
    def generate_dict_of_scanner_events (self, log_to_search):
 
       """
@@ -232,4 +189,59 @@ class event_catcher():
             standardized_scanner_events['Scanner is done acquiring data'] = scanner_events[event]
 
       return (standardized_scanner_events)
+
+
+
+   """
+
+      Up till this point in this 'handler' module there are matching/corresponding
+      functions in each vendors' library, but with implementations specific to each
+      vendor.
+
+      Below this will likely be functions specific to each vendors' platform.
+
+   """
+
+
+
+   def check_inline_export_log (self, scanner_events_dictionary,
+                                export_log='/var/log/dcmRxInfo.log'):
+
+      """
+         This routine will parse the log output from the inline real-time export log.
+         It will determine the start (MEAS_START) and stop (MEAS_FINISHED) of image
+         reconstruction, as flags for these are not reliably written to the system's
+         logs on the console that routines here get most of their info from.
+      """
+
+      event_date_time_00 = re.compile(r'\d{4}-\d{2}-\d{2}\s+\d{2}:\d{2}:\d{2}')
+
+      with open (export_log, 'r') as fifo_rt:
+         print (f"FIFO '{export_log}' opened for reading. Waiting for data...")
+
+         while True:
+            select.select([fifo_rt], [], [], 0.1)
+
+            data = fifo_rt.read()
+
+            if data:
+               current_line = data.strip()
+
+               if ('MEAS_' in current_line):
+                  meas_event_time = event_date_time_00.search(current_line)
+                  meas_event_datetime = datetime.datetime.strptime(meas_event_time.group(),
+                                                                   '%Y-%m-%d  %H:%M:%S')
+                  if ('MEAS_START' in current_line):
+                     print ("Image recon started at: %s" % str(meas_event_datetime))
+                  else: # MEAS_FINISHED
+                     print ("Image recon ended at: %s" % str(meas_event_datetime))
+               elif ('DICOMIMA' in current_line):
+                  # print ('Image file written')
+                  pass
+               else:
+                  print (f'Unknown line received: {current_line}')
+            else:
+               pass
+
+      return
 
