@@ -99,10 +99,10 @@ class _EventHandler():
          file_path = log_file_dir + '/' + file_name
 
          if ("gz" in file_name):
-            print ("Prepare for reading   compressed file: %s" % file_name)
+            # print ("Prepare for reading   compressed file: %s" % file_name)
             log_file_open_function = gzip.open
          else:
-            print ("Prepare for reading uncompressed file: %s" % file_name)
+            # print ("Prepare for reading uncompressed file: %s" % file_name)
             log_file_open_function = open
 
          # Use the "list.extend()" method here, to add / stack the entries
@@ -135,28 +135,32 @@ class _EventHandler():
                                                      self.scanner_event_detector.log_files_dict,
                                                      self.scanner_event_detector.latest_files,
                                                      log_file_read_mode=self.log_file_read_mode)
+
          if not log_lines:
-            await asyncio.sleep(0.5)
+            await asyncio.sleep(0.75)
          else:
             # Grab the dictionary of events from the scanner's logs
             scanner_log_events_and_times  = self.scanner_event_detector.generate_dict_of_scanner_events(log_lines)
 
             # Use dictionary to represent scanner info and state with a set of key-value pairs
-            print (json.dumps({"scanner vendor": self._vendor,
-                               "scanner AE Title": self.scanner_name,
-                               "all_events": str(self.scanner_event_detector.determine_state_and_actions(scanner_log_events_and_times)),
-                               "current time": str(datetime.datetime.now())}))
+            scanner_state_data = {"scanner vendor": self._vendor,
+                                  "scanner AE Title": self.scanner_name,
+                                  "all_events": str(self.scanner_event_detector.determine_state_and_actions(scanner_log_events_and_times)),
+                                  "current time": str(datetime.datetime.now())}
+
+            print (json.dumps(scanner_state_data))
+
+            # with open (scanner_state_info_file, 'w') as state_file_handle:
+
+               # json.dump(scanner_state_data, state_file_handle)
+
+               # state_file_handle.flush()
 
          await asyncio.sleep(0.25)
 
 
 
 async def main():
-
-   vendor       = os.environ['MRI_SCANNER_VENDOR']
-   scanner_AET  = os.environ['MRI_SCANNER_AETITLE']
-
-   scanner_monitoring_tasks = []
 
    # reading logging location from environment from account running this.
    try:
@@ -165,15 +169,26 @@ async def main():
       print ('\n   !!! Please define the environment variable MRI_SCANNER_LOG_DIR !!!\n')
       sys.exit(1)
 
+   vendor       = os.environ['MRI_SCANNER_VENDOR']
+   scanner_AET  = os.environ['MRI_SCANNER_AETITLE']
+
    handler = _EventHandler(vendor, scanner_AET, os.environ['MRI_SCANNER_LOG_DIR'])
+
+   scanner_monitoring_tasks = []
 
    scanner_read_log_task = asyncio.create_task(handler.read_scanner_state())
 
    scanner_monitoring_tasks.append(scanner_read_log_task)
 
+   scanner_aux_info_task = asyncio.create_task(handler.scanner_event_detector.read_other_resources(handler.scanner_event_detector.scanner_events_dict))
+
+   scanner_monitoring_tasks.append(scanner_aux_info_task)
+
    await asyncio.gather(*scanner_monitoring_tasks)
 
 
 
-asyncio.run(main())
+if __name__ == "__main__":
+
+   asyncio.run(main())
 
