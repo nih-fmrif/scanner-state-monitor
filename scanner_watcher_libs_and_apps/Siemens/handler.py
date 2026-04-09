@@ -3,12 +3,14 @@
 
 # Basic infrastruture to parse Siemens scanner logs
 
-import      re, os
+import      re, os, sys
 from        itertools   import   repeat
 import      datetime
 import      select
 import      asyncio
 import      aiofiles
+
+from       .simple_socket_server    import simple_tcp_handler, simple_socket_server
 
 
 
@@ -213,7 +215,47 @@ class event_catcher():
 
       """
 
-      await self.check_inline_export_log(scanner_events_dict, export_log='/tmp/.dcmRxInfo.log')
+      # await self.check_inline_export_log(scanner_events_dict, export_log='/tmp/.dcmRxInfo.log')
+      await self.check_inline_export_tcp(scanner_events_dict, host="10.0.144.50", port=8111)
+
+
+
+   async def check_inline_export_tcp (self, scanner_events_dictionary,
+                                      host="192.168.2.5", port=5000):
+      """
+         This routine will parse the log output from the inline real-time export log.
+         It will determine the start (MEAS_START) and stop (MEAS_FINISHED) of image
+         reconstruction, as flags for these are not reliably written to the system's
+         logs on the console that routines here get most of their info from.
+      """
+
+      event_date_time_00 = re.compile(r'\d{4}-\d{2}-\d{2}\s+\d{2}:\d{2}:\d{2}')
+
+      tcp_socket_server  = simple_socket_server((host, port), simple_tcp_handler)
+
+      await tcp_socket_server.serve_forever()
+
+      if data:
+         current_line = data.strip()
+
+         if ('MEAS_' in current_line):
+            meas_event_time = event_date_time_00.search(current_line)
+            meas_event_datetime = datetime.datetime.strptime(meas_event_time.group(),
+                                                                   '%Y-%m-%d  %H:%M:%S')
+            if ('MEAS_START' in current_line):
+               print ("Image recon started at: %s" % str(meas_event_datetime))
+            else: # MEAS_FINISHED
+               print ("Image recon ended at: %s" % str(meas_event_datetime))
+         elif ('DICOMIMA' in current_line):
+            print ('Image file written:' + current_line)
+            pass
+         else:
+            print (f'Unknown line received: {current_line}')
+      else:
+         await asyncio.sleep (0.1)  # If no new lines, sleep briefly
+         pass
+
+      return
 
 
 
