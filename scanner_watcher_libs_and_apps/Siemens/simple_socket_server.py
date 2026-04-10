@@ -1,83 +1,53 @@
 
 #!/usr/bin/env python3
 
-import socketserver
-import sys
+import asyncio
 import datetime
 
 
 
-HOST = "localhost"   # listening host for real time server
-PORT = 5000          # port on server real time is listening on
+async def simple_async_socket_server(reader, writer):
+
+      """
+         Create simple async socket initialization and listening
+         routine.
+      """
+
+   # while True:
+
+      data  = await reader.read(1*1024*1024)
+      lines = data.decode('utf-8').splitlines()
+
+      if len(lines) > 0:
+         for each_line in lines:
+
+            # Check for MEAS_ in message string, and if present, add
+            # current system date and time to that line.
+            if "MEAS_".casefold() in each_line.casefold():
+               # Pre-pend date and time, match format already used in
+               # Siemens' logs, i.e. date: yyyy-mm-dd, and time:
+               # HH:MM:SS.milliseconds
+               current_time = datetime.datetime.now()
+               print(current_time.strftime("%Y-%m-%d %H:%M:%S.%f")[:-3] + ' ' + each_line)
+            else:
+               print(each_line)
 
 
 
-class simple_tcp_handler(socketserver.BaseRequestHandler):
+async def main():
 
-    """
-       The RequestHandler class for our server.
-
-       It is instantiated once per connection to the server, and must
-       override the handle() method to implement communication to the
-       client.
-    """
-
-    def handle(self):
-        # self.request is the TCP socket connected to the client
-        self.server.connection_counter = self.server.connection_counter + 1
-        sys.stderr.write ("\n%s made a connection\n" % self.client_address[0])
-
-        # Get data and print ... could be modified as needed
-        while True:
-            data = self.request.recv(1*1024*1024)
-            if not data:
-                # no more data
-                break
-
-            lines = data.decode('utf-8').splitlines()
-
-            if len(lines) > 0:
-                for each_line in lines:
-
-                    # Check for MEAS_ in message string, and if present, add
-                    # current system date and time to that line.
-                    if "MEAS_".casefold() in each_line.casefold():
-                        # Pre-pend date and time, match format already used in
-                        # Siemens' logs, i.e. date: yyyy-mm-dd, and time:
-                        # HH:MM:SS.milliseconds
-                        current_time = datetime.datetime.now()
-                        print(current_time.strftime("%Y-%m-%d %H:%M:%S.%f")[:-3] + ' ' + each_line)
-                    else:
-                        print(each_line)
-
-        # The connection has been closed
-        sys.stderr.write ("%s closed the connection\n" % self.client_address[0])
-
-
-
-class simple_socket_server(socketserver.TCPServer):
-
-    """
-       Base class for simple TCP socket server.
-    """
-
-    connection_counter = 0
-
-    def __init__(self, server_address, RequestHandlerClass):
-      socketserver.TCPServer.__init__(self, server_address, RequestHandlerClass)
-      self.connection_counter = 0
+   try:
+      # Create the server
+      socket_server = await asyncio.start_server(simple_async_socket_server,
+                                                 host='localhost', port=5000)
+      async with socket_server:
+         await socket_server.serve_forever()
+   finally:
+      exit()
 
 
 
 if __name__ == "__main__":
 
-   try:
-      # Create the server
-      server = simple_socket_server((HOST, PORT), simple_tcp_handler)
-
-      # Activate the server
-      # this will keep running until you interrupt with Ctrl-C
-      server.serve_forever()
-   finally:
-      exit()
+   asyncio.run(main())
 
