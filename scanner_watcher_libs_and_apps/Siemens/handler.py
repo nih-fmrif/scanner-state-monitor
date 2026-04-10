@@ -8,9 +8,6 @@ from        itertools   import   repeat
 import      datetime
 import      select
 import      asyncio
-import      aiofiles
-
-from       .simple_socket_server    import simple_tcp_handler, simple_socket_server
 
 
 
@@ -229,33 +226,38 @@ class event_catcher():
          logs on the console that routines here get most of their info from.
       """
 
-      event_date_time_00 = re.compile(r'\d{4}-\d{2}-\d{2}\s+\d{2}:\d{2}:\d{2}')
-
-      tcp_socket_server  = simple_socket_server((host, port), simple_tcp_handler)
-
-      await tcp_socket_server.serve_forever()
-
-      if data:
-         current_line = data.strip()
-
-         if ('MEAS_' in current_line):
-            meas_event_time = event_date_time_00.search(current_line)
-            meas_event_datetime = datetime.datetime.strptime(meas_event_time.group(),
-                                                                   '%Y-%m-%d  %H:%M:%S')
-            if ('MEAS_START' in current_line):
-               print ("Image recon started at: %s" % str(meas_event_datetime))
-            else: # MEAS_FINISHED
-               print ("Image recon ended at: %s" % str(meas_event_datetime))
-         elif ('DICOMIMA' in current_line):
-            print ('Image file written:' + current_line)
-            pass
-         else:
-            print (f'Unknown line received: {current_line}')
-      else:
-         await asyncio.sleep (0.1)  # If no new lines, sleep briefly
-         pass
+      socket_server = await asyncio.start_server(self.simple_async_socket_server,
+                                                 host=host, port=port)
+      async with socket_server:
+         await socket_server.serve_forever()
 
       return
+
+
+
+   async def simple_async_socket_server(self, reader, writer):
+
+      """
+         Create simple async socket initialization and listening
+         routine.
+      """
+
+      data = await reader.read(1 * 1024 * 1024)
+      lines = data.decode('utf-8').splitlines()
+
+      if len(lines) > 0:
+         for each_line in lines:
+
+            # Check for MEAS_ in message string, and if present, add
+            # current system date and time to that line.
+            if "MEAS_".casefold() in each_line.casefold():
+               # Pre-pend date and time, match format already used in
+               # Siemens' logs, i.e. date: yyyy-mm-dd, and time:
+               # HH:MM:SS.milliseconds
+               current_time = datetime.datetime.now()
+               print(current_time.strftime("%Y-%m-%d %H:%M:%S.%f")[:-3] + ' ' + each_line)
+            else:
+               print(each_line)
 
 
 
