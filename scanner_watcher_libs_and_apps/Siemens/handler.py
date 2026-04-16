@@ -226,7 +226,7 @@ class event_catcher():
       """
 
       socket_server = await asyncio.start_server(self.simple_async_socket_server,
-                                                 host=host, port=port)
+                                                 host=host, port=port, keep_alive=True)
       async with socket_server:
          await socket_server.serve_forever()
 
@@ -260,4 +260,6 @@ class event_catcher():
                   print(current_time.strftime("%Y-%m-%d %H:%M:%S.%f")[:-3] + ' ' + each_line)
                else:
                   print(each_line)
+         else:
+            break
 
