@@ -137,7 +137,7 @@ class _EventHandler():
                                                      log_file_read_mode=self.log_file_read_mode)
 
          if not log_lines:
-            await asyncio.sleep(0.75)
+            await asyncio.sleep(0.5)
          else:
             # Grab the dictionary of events from the scanner's logs
             scanner_log_events_and_times  = self.scanner_event_detector.generate_dict_of_scanner_events(log_lines)
@@ -156,7 +156,7 @@ class _EventHandler():
 
                # state_file_handle.flush()
 
-         await asyncio.sleep(0.25)
+         await asyncio.sleep(0.5)
 
 
 
