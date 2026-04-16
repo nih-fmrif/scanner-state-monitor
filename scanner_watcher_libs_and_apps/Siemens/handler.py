@@ -212,7 +212,6 @@ class event_catcher():
 
       """
 
-      # await self.check_inline_export_log(scanner_events_dict, export_log='/tmp/.dcmRxInfo.log')
       await self.check_inline_export_tcp(scanner_events_dict, host="10.0.144.50", port=8111)
 
 
@@ -220,10 +219,10 @@ class event_catcher():
    async def check_inline_export_tcp (self, scanner_events_dictionary,
                                       host="192.168.2.5", port=5000):
       """
-         This routine will parse the log output from the inline real-time export log.
-         It will determine the start (MEAS_START) and stop (MEAS_FINISHED) of image
-         reconstruction, as flags for these are not reliably written to the system's
-         logs on the console that routines here get most of their info from.
+         Initially attempt to create a non-blocking TCP server to capture and
+         process info sent by vendor's real-time export system.  The initial
+         attempt will use asyncio's TCP server extensions.
+
       """
 
       socket_server = await asyncio.start_server(self.simple_async_socket_server,
@@ -238,72 +237,27 @@ class event_catcher():
    async def simple_async_socket_server(self, reader, writer):
 
       """
-         Create simple async socket initialization and listening
-         routine.
+         Create simple async socket reading and processing routine.
+
       """
 
-      data = await reader.read(1 * 1024 * 1024)
-      lines = data.decode('utf-8').splitlines()
+      while True:
 
-      if len(lines) > 0:
-         for each_line in lines:
+         data = await reader.read(1 * 1024 * 1024)
 
-            # Check for MEAS_ in message string, and if present, add
-            # current system date and time to that line.
-            if "MEAS_".casefold() in each_line.casefold():
-               # Pre-pend date and time, match format already used in
-               # Siemens' logs, i.e. date: yyyy-mm-dd, and time:
-               # HH:MM:SS.milliseconds
-               current_time = datetime.datetime.now()
-               print(current_time.strftime("%Y-%m-%d %H:%M:%S.%f")[:-3] + ' ' + each_line)
-            else:
-               print(each_line)
+         lines = data.decode('utf-8').splitlines()
 
+         if len(lines) > 0:
+            for each_line in lines:
 
-
-   async def check_inline_export_log (self, scanner_events_dictionary,
-                                      export_log='/var/log/dcmRxInfo.log'):
-      """
-         This routine will parse the log output from the inline real-time export log.
-         It will determine the start (MEAS_START) and stop (MEAS_FINISHED) of image
-         reconstruction, as flags for these are not reliably written to the system's
-         logs on the console that routines here get most of their info from.
-      """
-
-      event_date_time_00 = re.compile(r'\d{4}-\d{2}-\d{2}\s+\d{2}:\d{2}:\d{2}')
-
-      # with open (export_log, 'r') as fifo_rt:
-      async with aiofiles.open (export_log, mode='r') as fifo_rt:
-
-         print (f"FIFO '{export_log}' opened for reading. Waiting for data...")
-
-         # os.set_blocking(fifo_rt.fileno(), False)
-
-         while True:
-
-            select.select([fifo_rt], [], [], 0.1)
-
-            data = await fifo_rt.read()
-
-            if data:
-               current_line = data.strip()
-
-               if ('MEAS_' in current_line):
-                  meas_event_time = event_date_time_00.search(current_line)
-                  meas_event_datetime = datetime.datetime.strptime(meas_event_time.group(),
-                                                                   '%Y-%m-%d  %H:%M:%S')
-                  if ('MEAS_START' in current_line):
-                     print ("Image recon started at: %s" % str(meas_event_datetime))
-                  else: # MEAS_FINISHED
-                     print ("Image recon ended at: %s" % str(meas_event_datetime))
-               elif ('DICOMIMA' in current_line):
-                  print ('Image file written:' + current_line)
-                  pass
+               # Check for MEAS_ in message string, and if present, add
+               # current system date and time to that line.
+               if "MEAS_".casefold() in each_line.casefold():
+                  # Pre-pend date and time, match format already used in
+                  # Siemens' logs, i.e. date: yyyy-mm-dd, and time:
+                  # HH:MM:SS.milliseconds
+                  current_time = datetime.datetime.now()
+                  print(current_time.strftime("%Y-%m-%d %H:%M:%S.%f")[:-3] + ' ' + each_line)
                else:
-                  print (f'Unknown line received: {current_line}')
-            else:
-               await asyncio.sleep (0.1)  # If no new lines, sleep briefly
-               pass
-
-      return
+                  print(each_line)
 
