@@ -3,10 +3,9 @@
 
 # Basic infrastruture to parse Siemens scanner logs
 
-import      re, os, sys
+import      re
 from        itertools   import   repeat
 import      datetime
-import      select
 import      asyncio
 
 
@@ -219,9 +218,9 @@ class event_catcher():
    async def check_inline_export_tcp (self, scanner_events_dictionary,
                                       host="192.168.2.5", port=5000):
       """
-         Initially attempt to create a non-blocking TCP server to capture and
-         process info sent by vendor's real-time export system.  The initial
-         attempt will use asyncio's TCP server extensions.
+         Initial attempt to create a non-blocking TCP server to capture and
+         process info sent by vendor's real-time export system. This version
+         will use asyncio's TCP server extensions.
 
       """
 
