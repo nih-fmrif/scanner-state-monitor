@@ -182,14 +182,32 @@ class event_catcher():
       # standardized labels, and keep times of each event
       standardized_scanner_events = {}
       for event in scanner_events.keys():
+
+         standard_key = ''
+
+         # print ("Handling scan start event: %s at %s" % (event, str(scanner_events[event])))
+
          if (event == 'Patient registered'):
-            standardized_scanner_events[scanner_state] = scanner_events[event]
+            standard_key = scanner_state
          if (event == 'SCANNER prepare finished ok'):
-            standardized_scanner_events['Pulse sequence prepped'] = scanner_events[event]
-         if ((event == 'MSR_OK') or (event == 'MSR_STARTED')):
-            standardized_scanner_events['Scanner is acquiring data'] = scanner_events[event]
+            standard_key = 'Pulse sequence prepped'
          if ((event == 'MSR_MEAS_FINISHED') or (event == 'MSR_ACQ_FINISHED') or (event == 'MSR_SCANNER_FINISHED')):
-            standardized_scanner_events['Scanner is done acquiring data'] = scanner_events[event]
+            standard_key = 'Scanner is done acquiring data'
+
+         standardized_scanner_events[standard_key] = scanner_events[event]
+
+         # Need to track these more carefully, as start/data acquisition start/stop
+         # can now also set from TCP socket data from real-time data export.
+         if (event == 'MSR_OK'):
+            standard_key = 'Scanner is acquiring data'
+
+            # Check if acquisition time in scanner logs is later than the state dictionary.
+            # In functions below, acquisition start time is recorded in TCP messages if
+            # scanner logs are not updated fast enough.
+            if (scanner_events[event] > self.scanner_events_dict['SCANNER prepare finished ok']):
+               standardized_scanner_events[standard_key] = self.scanner_events_dict['MSR_OK']
+            else: # Use the time from the scanner logs
+               standardized_scanner_events[standard_key] = scanner_events[event]
 
       return (standardized_scanner_events)
 
@@ -259,10 +277,13 @@ class event_catcher():
                   # Pre-pend date and time, match format already used in
                   # Siemens' logs, i.e. date: yyyy-mm-dd, and time:
                   # HH:MM:SS.milliseconds
-                  current_time = datetime.datetime.now()
-                  print(current_time.strftime("%Y-%m-%d %H:%M:%S.%f")[:-3] + ' ' + each_line)
-               else:
-                  print(each_line)
+                  if "MEAS_START".casefold() in each_line.casefold():
+                     self.scanner_events_dict['MSR_OK'] = datetime.datetime.now()
+                  # else: # "MEAS_FINISHED".casefold() in each_line.casefold():
+                     # self.scanner_events_dict['Scanner is done acquiring data'] = current_time
+                  # print(current_time.strftime("%Y-%m-%d %H:%M:%S.%f")[:-3] + ' ' + each_line)
+               # else:
+                  # print(each_line)
          else:
             break
 
