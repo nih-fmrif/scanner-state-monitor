@@ -65,8 +65,12 @@ class event_catcher():
 
             # Initialize dictionary values with nonsensical value, so if an
             # event is not found in the logs, it can still processed by the
-            # 'sort_dict' routine.
-            self.scanner_events_dict = dict(zip(self.scanner_events, repeat('0001-01-01-00-00-00.001')))
+            # 'sort_dict' routine. The time object is set to year = 1, month
+            # = 1, day = 1 (datetime object wouldn't accept zero values for
+            # these quantities. Hour, minute, second, and microsecond all
+            # default to value = 0, so no need to specify those.
+            self.scanner_events_dict = dict(zip(self.scanner_events,
+                                                repeat(datetime.datetime(1, 1, 1))))
 
 
 
