@@ -8,6 +8,8 @@ import   json
 import   asyncio
 import   datetime
 
+from     flask    import Flask, jsonify
+
 sys.path.insert(0, os.path.abspath('.'))
 import   Siemens
 import   GE
@@ -17,6 +19,8 @@ import   GE
 # The server is being refactored as an application employing 'asyncio' to be able
 # to poll multiple sources of information in parallel, to get more information to
 # better identify the current state of the scanner.
+
+global scanner_state_data
 
 class _EventHandler():
 
@@ -143,16 +147,35 @@ class _EventHandler():
             scanner_log_events_and_times  = self.scanner_event_detector.generate_dict_of_scanner_events(log_lines)
 
             # Use dictionary to represent scanner info and state with a set of key-value pairs
+            global scanner_state_data
             scanner_state_data = {"scanner vendor": self._vendor,
                                   "scanner AE Title": self.scanner_name,
                                   "all_events": self.scanner_event_detector.determine_state_and_actions(scanner_log_events_and_times),
                                   "current time": str(datetime.datetime.now())}
 
-            # print (json.dumps(str(scanner_state_data),                # for entire JSON packet
-            print (json.dumps(str(scanner_state_data["all_events"]),    # for just events dict
+            print (json.dumps(str(scanner_state_data),                  # for entire JSON packet
+            # print (json.dumps(str(scanner_state_data["all_events"]),    # for just events dict
                               ensure_ascii=False, indent=3, separators=(',', ':')))
 
          await asyncio.sleep(0.5)
+
+
+
+app = Flask(__name__)
+# Default for ReST GET method
+@app.route('/scanner_state')
+
+def publish_scanner_state():
+
+   global scanner_state_data
+
+   return jsonify(scanner_state_data)
+
+
+
+async def run_web_server():
+
+   await app.run(debug = True, host = '127.0.0.1', port=5000)
 
 
 
@@ -179,6 +202,10 @@ async def main_scanner_observer_task():
    scanner_aux_info_task = asyncio.create_task(handler.scanner_event_detector.read_other_resources(handler.scanner_event_detector.scanner_events_dict))
 
    scanner_monitoring_tasks.append(scanner_aux_info_task)
+
+   scanner_publish_state_task =  asyncio.create_task(run_web_server())
+
+   scanner_monitoring_tasks.append(scanner_publish_state_task)
 
    await asyncio.gather(*scanner_monitoring_tasks)
 
