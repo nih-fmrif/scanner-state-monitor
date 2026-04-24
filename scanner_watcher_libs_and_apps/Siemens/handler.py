@@ -271,14 +271,13 @@ class event_catcher():
          if len(lines) > 0:
             for each_line in lines:
 
-               # Check for MEAS_ in message string, and if present, add
-               # current system date and time to that line.
+               current_time = datetime.datetime.now()
+
+               # Check for MEAS_ in message string, and if present, update events
+               # dictionary with current time for corresponding event.
                if "MEAS_".casefold() in each_line.casefold():
-                  # Pre-pend date and time, match format already used in
-                  # Siemens' logs, i.e. date: yyyy-mm-dd, and time:
-                  # HH:MM:SS.milliseconds
                   if "MEAS_START".casefold() in each_line.casefold():
-                     self.scanner_events_dict['MSR_OK'] = datetime.datetime.now()
+                     self.scanner_events_dict['MSR_OK'] = current_time
                   # else: # "MEAS_FINISHED".casefold() in each_line.casefold():
                      # self.scanner_events_dict['Scanner is done acquiring data'] = current_time
                   # print(current_time.strftime("%Y-%m-%d %H:%M:%S.%f")[:-3] + ' ' + each_line)
