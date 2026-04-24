@@ -145,22 +145,18 @@ class _EventHandler():
             # Use dictionary to represent scanner info and state with a set of key-value pairs
             scanner_state_data = {"scanner vendor": self._vendor,
                                   "scanner AE Title": self.scanner_name,
-                                  "all_events": str(self.scanner_event_detector.determine_state_and_actions(scanner_log_events_and_times)),
+                                  "all_events": self.scanner_event_detector.determine_state_and_actions(scanner_log_events_and_times),
                                   "current time": str(datetime.datetime.now())}
 
-            print (json.dumps(scanner_state_data))
-
-            # with open (scanner_state_info_file, 'w') as state_file_handle:
-
-               # json.dump(scanner_state_data, state_file_handle)
-
-               # state_file_handle.flush()
+            # print (json.dumps(str(scanner_state_data),                # for entire JSON packet
+            print (json.dumps(str(scanner_state_data["all_events"]),    # for just events dict
+                              ensure_ascii=False, indent=3, separators=(',', ':')))
 
          await asyncio.sleep(0.5)
 
 
 
-async def main():
+async def main_scanner_observer_task():
 
    # reading logging location from environment from account running this.
    try:
@@ -190,5 +186,5 @@ async def main():
 
 if __name__ == "__main__":
 
-   asyncio.run(main())
+   asyncio.run(main_scanner_observer_task())
 
