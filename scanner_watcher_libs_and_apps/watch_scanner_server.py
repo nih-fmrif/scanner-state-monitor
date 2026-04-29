@@ -8,8 +8,6 @@ import   json
 import   asyncio
 import   datetime
 
-from     flask    import Flask, jsonify
-
 sys.path.insert(0, os.path.abspath('.'))
 import   Siemens
 import   GE
@@ -161,25 +159,33 @@ class _EventHandler():
 
 
 
-app = Flask(__name__)
-# Default for ReST GET method
-@app.route('/scanner_state')
+async def publish_scanner_state(reader, writer):
 
-def publish_scanner_state():
+   """
+      Instead of relying on a Flask application, use asyncio's built-in methods
+      to create a TCP socket-server where the scanner state data is written to.
+
+      This method is called by asyncio.start_server, starts the server on the
+      specified network interface IP and port, and writes the scanner state data
+      to that socket.
+   """
 
    global scanner_state_data
 
-   return jsonify(scanner_state_data)
+   writer.write(bytes(str(scanner_state_data), "utf-8"))
 
+   await writer.drain()
 
-
-async def run_web_server():
-
-   await app.run(debug = True, host = '127.0.0.1', port=5000)
+   writer.close()
 
 
 
 async def main_scanner_observer_task():
+
+   """
+      This method grabs values from environment variables needed by these routines, and
+      and builds a list of tasks to run asynchronously, in parallel.
+   """
 
    # reading logging location from environment from account running this.
    try:
@@ -203,9 +209,10 @@ async def main_scanner_observer_task():
 
    scanner_monitoring_tasks.append(scanner_aux_info_task)
 
-   scanner_publish_state_task =  asyncio.create_task(run_web_server())
+   socket_server_task    = asyncio.start_server(publish_scanner_state, host = 'localhost',
+                                                port = 5555, keep_alive = True)
 
-   scanner_monitoring_tasks.append(scanner_publish_state_task)
+   scanner_monitoring_tasks.append(socket_server_task)
 
    await asyncio.gather(*scanner_monitoring_tasks)
 

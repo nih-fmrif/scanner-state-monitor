@@ -4,20 +4,19 @@
 #   https://tutorialedge.net/python/concurrency/asyncio-event-loops-tutorial/
 
 import asyncio
-import requests
+import socket
 import datetime
 import logging
 import json
 
 
 state_poll_interval = 0.5   # in seconds
-state_src_url       = 'http://localhost:5000/scanner_state'
 logging.basicConfig(format='%(asctime)s %(message)s', datefmt='%Y_%m_%d %H:%M:%S :', level=logging.WARNING)
 scan_event_logger   = logging.getLogger(__name__)
 
 
 
-async def poll_state(state_url, polling_interval):
+async def poll_state(polling_interval, host = host, port = port):
 
    while True:
 
@@ -27,12 +26,16 @@ async def poll_state(state_url, polling_interval):
 
       try:
 
-         # poll URL where state is published to
-         state = requests.get(state_url)
+         watched_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+         watched_socket.connect ((host, port))
+
+         socket_data = watched_socket.recv(1 * 1024 * 1024)
+
+         watched_socket.close()
 
       except:
 
-          print("Couldn't reach URL: %s to determine scanner state." % state_url)
+          print("Couldn't connect to host %s on port %s to determine scanner state." % (host, str(port))
 
           continue # To next iteration of while loop, skipping code below
 
@@ -40,7 +43,7 @@ async def poll_state(state_url, polling_interval):
       current_state_check_date_time = datetime.datetime.now().strftime("%Y_%m_%d_%H:%M:%S")
 
       # Convert published JSON struct to Python dictionary
-      data = state.json()
+      data = eval(socket_data.decode('utf-8'))  # should find a way to use ast.literal_eval() to do this
 
       # Extract desired information from packet
       current_state_dict = data['all_events']
@@ -81,7 +84,7 @@ if __name__ == "__main__":
    loop = asyncio.get_event_loop()
 
    try:
-      asyncio.ensure_future(poll_state(state_src_url, state_poll_interval))
+      asyncio.ensure_future(poll_state(state_poll_interval, host = 'localhost', port = 5555))
       loop.run_forever()
    except KeyboardInterrupt:
       pass
