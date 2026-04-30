@@ -102,20 +102,25 @@ class event_catcher():
 
                   if (event_to_find == 'Patient registered'):
                      patient_event_date = self.event_date_01.search(current_line)
-                     # Patient registered event doesn't contain the year of the event, so grab current year.
-                     # Note the fragility of this assumption for scanning over midnight from New Year's Eve
-                     # to New Year's Day.  So we are parsing an event that looks like this:
+                     # Patient registered event doesn't contain the year of the
+                     # event, so grab current year.  Note the fragility of this
+                     # assumption for scanning over midnight from New Year's Eve
+                     # to New Year's Day.  So we are parsing an event that looks
+                     # like this:
                      #
                      # Tue Sep 07 10:54:45.453 SBM INFO: -->Patient registered
 
-                     this_event_year    = '{num:{fill}{width}}'.format(num=datetime.date.today().year, fill='0', width=4)
+                     this_event_year    = '{num:{fill}{width}}'.format(num=datetime.date.today().year,
+                                                                       fill='0', width=4)
                      date_time_string   = patient_event_date.group() + ' ' + this_event_year + ' ' + this_event_time.group()
 
-                     date_time_object   = datetime.datetime.strptime(date_time_string, '%a %b %d %Y %H:%M:%S.%f')
+                     date_time_object   = datetime.datetime.strptime(date_time_string,
+                                                                     '%a %b %d %Y %H:%M:%S.%f')
                   else:
                      this_event_date    = self.event_date_00.search(current_line)
                      date_time_string   = this_event_date.group() + ' ' + this_event_time.group()
-                     date_time_object   = datetime.datetime.strptime(date_time_string, '%Y-%m-%d %H:%M:%S.%f')
+                     date_time_object   = datetime.datetime.strptime(date_time_string,
+                                                                     '%Y-%m-%d %H:%M:%S.%f')
 
                   # Previously, converted date object to string to store as
                   # dictionary value, using:
@@ -191,19 +196,21 @@ class event_catcher():
             standard_key = scanner_state
          if (event == 'SCANNER prepare finished ok'):
             standard_key = 'Pulse sequence prepped'
-         if ((event == 'MSR_MEAS_FINISHED') or (event == 'MSR_ACQ_FINISHED') or (event == 'MSR_SCANNER_FINISHED')):
+         if ((event == 'MSR_MEAS_FINISHED') or (event == 'MSR_ACQ_FINISHED') or
+             (event == 'MSR_SCANNER_FINISHED')):
             standard_key = 'Scanner is done acquiring data'
 
          standardized_scanner_events[standard_key] = scanner_events[event]
 
-         # Need to track these more carefully, as start/data acquisition start/stop
-         # can now also set from TCP socket data from real-time data export.
+         # Need to track these more carefully, as start/data acquisition
+         # start/stop can now also set from TCP socket data from real-time
+         # data export.
          if (event == 'MSR_OK'):
             standard_key = 'Scanner is acquiring data'
 
-            # Check if acquisition time in scanner logs is later than the state dictionary.
-            # In functions below, acquisition start time is recorded in TCP messages if
-            # scanner logs are not updated fast enough.
+            # Check if acquisition time in scanner logs is later than the state
+            # dictionary. In functions below, acquisition start time is recorded
+            # in TCP messages if scanner logs are not updated fast enough.
             if (scanner_events[event] > self.scanner_events_dict['SCANNER prepare finished ok']):
                standardized_scanner_events[standard_key] = self.scanner_events_dict['MSR_OK']
             else: # Use the time from the scanner logs
@@ -214,13 +221,11 @@ class event_catcher():
 
 
    """
-
-      Up till this point in this 'handler' module there are matching/corresponding
-      functions in each vendors' library, but with implementations specific to each
-      vendor.
+      Up till this point in this 'handler' module there are corresponding
+      functions in each vendors' library, but with implementations specific
+      to each vendor.
 
       Below this will likely be functions specific to each vendors' platform.
-
    """
 
 
@@ -230,24 +235,27 @@ class event_catcher():
       """
          General entry point to aggregate vendor specific methods to read and
          parse other sources of info.
-
       """
 
-      await self.check_inline_export_tcp(scanner_events_dict, host="10.0.144.50", port=8111)
+      # Need to set host and port values here to match those set in the Export
+      # section of the 'ideacmdtool' settings on your MR scanner.
+      await self.check_inline_export_tcp(scanner_events_dict,
+                                         host="10.0.0.1",
+                                         port=5000)
 
 
 
    async def check_inline_export_tcp (self, scanner_events_dictionary,
                                       host="192.168.2.5", port=5000):
       """
-         Initial attempt to create a non-blocking TCP server to capture and
-         process info sent by vendor's real-time export system. This version
-         will use asyncio's TCP server extensions.
-
+         Create a non-blocking TCP server to capture and process info sent
+         by vendor's real-time export system. This version uses asyncio's
+         TCP server extensions.
       """
 
       socket_server = await asyncio.start_server(self.simple_async_socket_server,
-                                                 host=host, port=port, keep_alive=True)
+                                                 host=host, port=port,
+                                                 keep_alive=True)
       async with socket_server:
          await socket_server.serve_forever()
 
@@ -259,7 +267,6 @@ class event_catcher():
 
       """
          Create simple async socket reading and processing routine.
-
       """
 
       while True:
