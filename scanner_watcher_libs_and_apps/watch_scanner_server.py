@@ -7,6 +7,7 @@ import   gzip
 import   json
 import   asyncio
 import   datetime
+import   logging
 
 sys.path.insert(0, os.path.abspath('.'))
 import   Siemens
@@ -20,9 +21,13 @@ import   GE
 
 global scanner_state_data
 
+logging.basicConfig(format='%(asctime)s %(message)s', datefmt='%Y_%m_%d %H:%M:%S :', level=logging.WARNING)
+scan_watcher_logger = logging.getLogger(__name__)
+
 class _EventHandler():
 
-   def __init__(self, scanner_vendor, scanner_name, log_file_path, *args, **kwargs):
+   def __init__(self, scanner_vendor, scanner_name, log_file_path,
+                *args, **kwargs):
 
       super(*args, **kwargs)
 
@@ -101,10 +106,10 @@ class _EventHandler():
          file_path = log_file_dir + '/' + file_name
 
          if ("gz" in file_name):
-            # print ("Prepare for reading   compressed file: %s" % file_name)
+            scan_watcher_logger.debug("Prepare for reading   compressed file: %s" % file_name)
             log_file_open_function = gzip.open
          else:
-            # print ("Prepare for reading uncompressed file: %s" % file_name)
+            scan_watcher_logger.debug("Prepare for reading uncompressed file: %s" % file_name)
             log_file_open_function = open
 
          # Use the "list.extend()" method here, to add / stack the entries
@@ -144,15 +149,16 @@ class _EventHandler():
             # Grab the dictionary of events from the scanner's logs
             scanner_log_events_and_times  = self.scanner_event_detector.generate_dict_of_scanner_events(log_lines)
 
-            # Use dictionary to represent scanner info and state with a set of key-value pairs
+            # Use dictionary to represent scanner info and state with a set of
+            # key-value pairs
             global scanner_state_data
             scanner_state_data = {"scanner vendor": self._vendor,
                                   "scanner AE Title": self.scanner_name,
                                   "all_events": self.scanner_event_detector.determine_state_and_actions(scanner_log_events_and_times),
                                   "current time": str(datetime.datetime.now())}
 
-            print (json.dumps(str(scanner_state_data),                  # for entire JSON packet
-            # print (json.dumps(str(scanner_state_data["all_events"]),    # for just events dict
+            scan_watcher_logger.info(json.dumps(str(scanner_state_data),                  # for entire JSON packet
+            # scan_watcher_logger.info(json.dumps(str(scanner_state_data["all_events"]),    # for just events dict
                               ensure_ascii=False, indent=3, separators=(',', ':')))
 
          await asyncio.sleep(0.5)
@@ -183,8 +189,9 @@ async def publish_scanner_state(reader, writer):
 async def main_scanner_observer_task():
 
    """
-      This method grabs values from environment variables needed by these routines, and
-      and builds a list of tasks to run asynchronously, in parallel.
+      This method grabs values from environment variables needed by these
+      routines, and and builds a list of tasks to run asynchronously, in
+      parallel.
    """
 
    # reading logging location from environment from account running this.
@@ -209,8 +216,10 @@ async def main_scanner_observer_task():
 
    scanner_monitoring_tasks.append(scanner_aux_info_task)
 
-   socket_server_task    = asyncio.start_server(publish_scanner_state, host = 'localhost',
-                                                port = 5555, keep_alive = True)
+   socket_server_task    = asyncio.start_server(publish_scanner_state,
+                                                host=os.environ['MRI_SCANNER_INFO_PUBLISH_TO_HOST'],
+                                                port=os.environ['MRI_SCANNER_INFO_PUBLISH_TO_PORT'],
+                                                keep_alive=True)
 
    scanner_monitoring_tasks.append(socket_server_task)
 
