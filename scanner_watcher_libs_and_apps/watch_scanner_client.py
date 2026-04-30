@@ -3,11 +3,11 @@
 #
 #   https://tutorialedge.net/python/concurrency/asyncio-event-loops-tutorial/
 
+import os
 import asyncio
 import socket
 import datetime
 import logging
-import json
 
 
 state_poll_interval = 0.5   # in seconds
@@ -16,7 +16,7 @@ scan_event_logger   = logging.getLogger(__name__)
 
 
 
-async def poll_state(polling_interval, host = host, port = port):
+async def poll_state(polling_interval, host = '127.0.0.1', port = 5555):
 
    while True:
 
@@ -24,20 +24,11 @@ async def poll_state(polling_interval, host = host, port = port):
 
       await asyncio.sleep(polling_interval)
 
-      try:
+      with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as watched_socket:
 
-         watched_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-         watched_socket.connect ((host, port))
+         watched_socket.connect ((host, int(port)))
 
          socket_data = watched_socket.recv(1 * 1024 * 1024)
-
-         watched_socket.close()
-
-      except:
-
-          print("Couldn't connect to host %s on port %s to determine scanner state." % (host, str(port))
-
-          continue # To next iteration of while loop, skipping code below
 
       # get date and time at which scanner state is polled
       current_state_check_date_time = datetime.datetime.now().strftime("%Y_%m_%d_%H:%M:%S")
@@ -84,7 +75,9 @@ if __name__ == "__main__":
    loop = asyncio.get_event_loop()
 
    try:
-      asyncio.ensure_future(poll_state(state_poll_interval, host = 'localhost', port = 5555))
+      asyncio.ensure_future(poll_state(state_poll_interval,
+                                       host=os.environ['MRI_SCANNER_INFO_PUBLISH_TO_HOST'],
+                                       port=os.environ['MRI_SCANNER_INFO_PUBLISH_TO_PORT']))
       loop.run_forever()
    except KeyboardInterrupt:
       pass
