@@ -165,6 +165,26 @@ class _EventHandler():
 
 
 
+import socket
+
+def simple_send_to_socket(host = 'localhost', port = 5000):
+
+   while True:
+
+      with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as client_socket:
+
+         client_socket.connect((host, port))
+
+         message = "Hi RT-listener! Sending this message at " + str(datetime.datetime.now())
+
+         print (message)
+
+         client_socket.sendall(message.encode('utf-8'))
+
+      time.sleep(1)
+
+
+
 async def publish_scanner_state(reader, writer):
 
    """
