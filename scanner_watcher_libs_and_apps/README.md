@@ -15,13 +15,13 @@ leverage information from multiple streams asynchronously (using Python's *async
 library), including vendors' text logs (as mentioned for the Flask-flavored version
 of this application), and now TCP sockets. This utility, instead of leveraging a
 Flask application to share information about a scanner's state, publishes that
-state data directly to another TCP socket, also in as an asynchronous task.  This
+state data directly to another TCP socket, also as an asynchronous task.  This
 utility should also be able to ingest and take advantage of more information sources
 as capabilities are added to the vendors' supporting libraries.
 
 * 'watch\_scanner\_client.py' - which, as the name suggests, is the sample client
 program showing how to access the information provided. This sample client will
-only provide a time-ordered list of detected events on each vendor's systems, but
+only provide a time-ordered list of detected events on each vendor's systems. But
 this can serve as a template for building applications that can use this state
 information. It also leverages Python's asyncio library, so that listening to and
 receiving information from the network socket does not block execution of the main
