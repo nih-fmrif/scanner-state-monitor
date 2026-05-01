@@ -17,11 +17,24 @@ app = Flask(__name__)
 
 
 
-# Using Flask to run an action based on the call to the ReST API (here, just 'GET'
-# calls are supported) removed the need for the watchdog and asyncio libraries, as
-# one can just read the log files, when the status of the scanner is requested.
-# This greatly simplifies the logic and structure, but leave open the idea of using
-# those other libraries again, as needed.
+"""
+   Using Flask to run an action based on the call to the ReST API (here, just 'GET'
+   calls are supported) removed the need for the watchdog and asyncio libraries, as
+   one can just read the log files, when the status of the scanner is requested.
+   This greatly simplifies the logic and structure, but leave open the idea of using
+   those other libraries again, as needed.
+
+   With Flask, only the process which reads the scanner's text logs are used to try
+   to figure out the scanner's state. Multiple complexities were encountered when
+   trying to combine Flask with asynchronous parallel processing, for example, what
+   can be accomplished with the 'asyncio' library.
+
+   Therefore, this (Flask) application will only get information from the vendors'
+   text log parsing modules. To read and use information from another other sources
+   (for example - TCP sockets), use the non-flask version of the watching server.
+"""
+
+
 
 class _EventHandler():
 
