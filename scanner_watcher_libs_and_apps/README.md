@@ -5,24 +5,25 @@ This folder contains a few applications and libraries with code to support vendo
 information streams.  Currently, these are:
 
 * 'watch\_scanner\_server\_flask.py' is the initial implementation. This utility
-leverage only routines that parse each vendor's text logs. The information gleaned
-from those text logs are then made available via a simple Flask application.  The
-'boot\_watch\_scanner.sh' script creates a basic Flask environment in which this
-utility can be run, then runs it.
+only uses routines that parse each vendor's text logs. The information gleaned
+from those text logs are then made available via a simple Flask web application.
+The 'boot\_watch\_scanner.sh' script creates a basic Flask environment in which
+this utility can be run, then runs it.
 
 * 'watch\_scanner\_server.py' is the follow-on implementation. This utility can
 leverage information from multiple streams asynchronously (using Python's *asyncio*
 library), including vendors' text logs (as mentioned for the Flask-flavored version
 of this application), and now TCP sockets. This utility, instead of leveraging a
-Flask application, publishes the scanner's state to another TCP socket, also in a
-asynchronous task.  This utility should also be able to leverage more information
-sources as capabilities are added to the vendors' supporting libraries.
+Flask application to share information about a scanner's state, publishes that
+state data directly to another TCP socket, also in as an asynchronous task.  This
+utility should also be able to ingest and take advantage of more information sources
+as capabilities are added to the vendors' supporting libraries.
 
 * 'watch\_scanner\_client.py' - which, as the name suggests, is the sample client
 program showing how to access the information provided. This sample client will
 only provide a time-ordered list of detected events on each vendor's systems, but
 this can serve as a template for building applications that can use this state
-information. It also leverages Python's asyncio library so that listening to and
+information. It also leverages Python's asyncio library, so that listening to and
 receiving information from the network socket does not block execution of the main
 thread/event loop.
 
