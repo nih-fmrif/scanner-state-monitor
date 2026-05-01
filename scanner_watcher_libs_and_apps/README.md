@@ -37,9 +37,10 @@ they are run needs access to the scanner's log directories.
 The testing and work done on this code have been on Linux systems where MR
 scanners' log directories have been mounted read-only (NFS and Samba both seem
 to work adequately) and are accessible to the accounts and processes running
-these tasks. The local implemention should be tailored to what is available and
-possibly locally, but since a wide scale of implementations are possible, these
-should be verified and tested for performance and reliability.
+these tasks. What is implemented locally to access such data from the scanners
+should be tailored to what is available and possible. But since a wide scale of
+implementations is possible, whatever is chosen needs to be verified and tested
+for performance and reliability.
 
 
 
