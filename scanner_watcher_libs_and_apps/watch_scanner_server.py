@@ -21,7 +21,9 @@ import   GE
 
 global scanner_state_data
 
-logging.basicConfig(format='%(asctime)s %(message)s', datefmt='%Y_%m_%d %H:%M:%S :', level=logging.WARNING)
+logging.basicConfig(format='%(asctime)s %(message)s',
+                    datefmt='%Y_%m_%d %H:%M:%S :',
+                    level=logging.WARNING)
 scan_watcher_logger = logging.getLogger(__name__)
 
 class _EventHandler():
