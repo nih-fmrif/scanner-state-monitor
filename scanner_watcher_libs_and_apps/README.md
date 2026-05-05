@@ -58,3 +58,10 @@ for performance and reliability.
 * MRI\_SCANNER\_INFO\_PUBLISH\_TO\_PORT - port number for TCP socket where
   scanner info is published to (also used by client program)
 
+#### For Siemens systems:
+
+* MRI\_SCANNER\_RT\_EXPORT\_HOST - hostname or IP address to where a Siemens
+  system will send inline export messages to
+* MRI\_SCANNER\_RT\_EXPORT\_PORT - network port where a Siemens system will
+  send inline export messages to
+
