@@ -133,8 +133,12 @@ class event_catcher():
                   #
                   #    date_time_object.strftime('%Y-%m-%d-%H-%M-%S.%f')
                   #
-                  # and sorted on that string. Now, use time object directly:
-                  self.scanner_events_dict[event_to_find] = date_time_object
+                  # and sorted on that string. Now, use time object directly,
+                  # and also make sure that entry found in logs is later than
+                  # existing time for that event, as some events' times are
+                  # now set in parallel, asynchronous, threads.
+                  if (self.scanner_events_dict[event_to_find] < date_time_object):
+                     self.scanner_events_dict[event_to_find] = date_time_object
                   # and sort on that object directly.
 
                   break # Should break out the "this_line" loop, and go to next
@@ -169,8 +173,6 @@ class event_catcher():
 
       """
 
-      std_event_dict_returned = {}
-
       for event in scanner_events.keys():
 
          if (event == 'Patient registered'):
@@ -191,10 +193,14 @@ class event_catcher():
 
       # Now, iterate through list of events, translate dictionary keys to more
       # standardized labels, and keep times of each event
-      standardized_scanner_events = {}
+      standardized_scanner_events = {k: datetime.datetime(1, 1, 1) for k in [
+                                     'Start scanning session', 'End scanning session',
+                                     'Pulse sequence prepped', 'Scanner is acquiring data',
+                                     'Scanner is done acquiring data']}
+
       for event in scanner_events.keys():
 
-         standard_key = 'End scanning session'
+         standard_key = 'Scanner is done acquiring data'
 
          # logger_siemens_handler.debug("Handling scan start event: %s at %s" % (event, str(scanner_events[event])))
 
@@ -212,7 +218,8 @@ class event_catcher():
          if (scanner_events[event] < self.scanner_events_dict[event]):
             pass
          else:
-            standardized_scanner_events[standard_key] = scanner_events[event]
+            if (scanner_events[event] > standardized_scanner_events[standard_key]):
+               standardized_scanner_events[standard_key] = scanner_events[event]
 
       return (standardized_scanner_events)
 
@@ -285,8 +292,8 @@ class event_catcher():
                      self.scanner_events_dict['MSR_MEAS_FINISHED'] = datetime.datetime.now()
                   logger_siemens_handler.warning(each_line)
                else:
-                  logger_siemens_handler.info(each_line)
-               logger_siemens_handler.warning(str(self.scanner_events_dict))
+                  logger_siemens_handler.debug(each_line)
+               logger_siemens_handler.info(str(self.scanner_events_dict))
          else:
             break
 

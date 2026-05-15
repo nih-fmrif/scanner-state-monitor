@@ -8,6 +8,7 @@ import   json
 import   asyncio
 import   datetime
 import   logging
+import   socket
 
 sys.path.insert(0, os.path.abspath('.'))
 import   Siemens
@@ -105,7 +106,7 @@ class _EventHandler():
 
          file_name = each_file[0] # i.e. the name of the file. [1] is its
                                   # modification time.
-         file_path = log_file_dir + '/' + file_name
+         file_path = os.path.join(log_file_dir, file_name)
 
          if ("gz" in file_name):
             scan_watcher_logger.debug("Prepare for reading   compressed file: %s" % file_name)
@@ -152,12 +153,16 @@ class _EventHandler():
             scanner_log_events_and_times  = self.scanner_event_detector.generate_dict_of_scanner_events(log_lines)
 
             # Use dictionary to represent scanner info and state with a set of
-            # key-value pairs
+            # key-value pairs.  Can publish either vendor specific, or standard
+            # event dictionary, depending on what's needed on client side.
+            scanner_event_dict_vendor = self.scanner_event_detector.scanner_events_dict
+            scanner_event_dict_std    = self.scanner_event_detector.determine_state_and_actions(scanner_log_events_and_times)
+
             global scanner_state_data
-            scanner_state_data = {"scanner vendor": self._vendor,
-                                  "scanner AE Title": self.scanner_name,
-                                  "all_events": self.scanner_event_detector.determine_state_and_actions(scanner_log_events_and_times),
-                                  "current time": str(datetime.datetime.now())}
+            scanner_state_data        = {"scanner vendor": self._vendor,
+                                         "scanner AE Title": self.scanner_name,
+                                         "all_events": scanner_event_dict_std,
+                                         "current time": str(datetime.datetime.now())}
 
             scan_watcher_logger.info(json.dumps(str(scanner_state_data),                  # for entire JSON packet
             # scan_watcher_logger.info(json.dumps(str(scanner_state_data["all_events"]),    # for just events dict
@@ -166,8 +171,6 @@ class _EventHandler():
          await asyncio.sleep(0.5)
 
 
-
-import socket
 
 def simple_send_to_socket(host = 'localhost', port = 5000):
 
