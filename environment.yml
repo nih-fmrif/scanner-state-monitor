@@ -2,6 +2,4 @@ name: mr_scanner_monitor
 channels:
    - conda-forge
 dependencies:
-   - requests
-   - watchdog
    - flask
