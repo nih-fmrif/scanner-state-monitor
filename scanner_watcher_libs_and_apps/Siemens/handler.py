@@ -284,12 +284,16 @@ class event_catcher():
             for each_line in lines:
 
                # Check for MEAS_ in message string, and if present, update events
-               # dictionary with current time for corresponding event.
+               # dictionary with current time for corresponding event, if time is
+               # later than time stored in events dictionary.
                if "MEAS_".casefold() in each_line.casefold():
+                  current_time = datetime.datetime.now()
                   if "MEAS_START".casefold() in each_line.casefold():
-                     self.scanner_events_dict['MSR_OK'] = datetime.datetime.now()
+                     if (current_time > self.scanner_events_dict['MSR_OK']):
+                        self.scanner_events_dict['MSR_OK'] = current_time
                   else: # "MEAS_FINISHED".casefold() in each_line.casefold():
-                     self.scanner_events_dict['MSR_MEAS_FINISHED'] = datetime.datetime.now()
+                     if (current_time > self.scanner_events_dict['MSR_MEAS_FINISHED']):
+                        self.scanner_events_dict['MSR_MEAS_FINISHED'] = current_time
                   logger_siemens_handler.warning(each_line)
                else:
                   logger_siemens_handler.debug(each_line)
