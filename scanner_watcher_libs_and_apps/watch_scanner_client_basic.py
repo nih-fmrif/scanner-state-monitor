@@ -15,6 +15,26 @@ scan_event_logger   = logging.getLogger(__name__)
 
 
 
+environment_vars = ['MRI_SCANNER_INFO_PUBLISH_TO_HOST',
+                    'MRI_SCANNER_INFO_PUBLISH_TO_PORT']
+
+def check_env_vars(variable_list):
+
+   '''
+      Basic utility to check that all needed enviroment
+      variables are defined, before executing rest of
+      code.
+   '''
+
+   for each_var in variable_list:
+      try:
+         os.environ[each_var]
+      except KeyError:
+         print(f"Unable to find required variable: {each_var} in environment - please define.")
+         raise SystemExit(1)
+
+
+
 async def poll_state(polling_interval, host = '127.0.0.1', port = 5555):
 
    while True:
@@ -68,6 +88,8 @@ def process_current_state(state_to_process):
 
 
 if __name__ == "__main__":
+
+   check_env_vars(environment_vars)
 
    loop = asyncio.get_event_loop()
 
