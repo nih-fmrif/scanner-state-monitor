@@ -7,6 +7,7 @@ import      re, os
 import      gzip
 from        itertools   import   repeat
 import      datetime
+import      asyncio
 
 
 
@@ -81,8 +82,6 @@ class event_catcher():
             # event is not found in the logs, it can still processed by the
             # 'sort_dict' routine.
             self.scanner_events_dict = dict(zip(self.scanner_events, repeat('0000-00-00-00-00-00.000000 (i.e. did not occur)')))
-
-      self.read_scanner_info_methods = [self.read_header_pool]
 
 
    def generate_dict_of_scanner_events (self, log_to_search):
@@ -205,14 +204,39 @@ class event_catcher():
 
 
 
-   def read_header_pool (self):
+   async def read_other_resources (self, scanner_events_dict):
+
+      """
+         General entry point to aggregate vendor specific methods to read and
+         parse other sources of info.
+      """
+
+      event_loop    = asyncio.get_running_loop()
+      event_queue   = asyncio.Queue()
+      file_contents = await self.read_header_pool(header_pool=os.environ['MRI_SCANNER_RAW_POOL'])
+
+
+
+   async def read_header_pool (self, header_pool='/usr/g/mrraw/HEADER_POOL'):
 
       """
          Temporarily empty method to start building up queue of parallel-ly executing events,
          to be handled concurrently.
+
+         Should employ the watchdog library in this module, so the HEADER_POOL file is only
+         read when it has changed.
       """
 
-      while 1:
+      while True:
 
-         print ("Should be reading raw header pool eventually, not doing anything else now.")
+         with open(header_pool, 'r') as header_pool_fd:
+
+            # return header_pool_fd.read()
+            print ("*** Read POOL HEADER here at ***" + str(datetime.datetime.now()))
+
+            await asyncio.sleep(0.5)
+         # Lookup using async sub-process module to use ReadPool utility to get info from raw
+         # header pool
+
+      return True
 
