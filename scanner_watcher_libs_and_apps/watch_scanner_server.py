@@ -90,7 +90,7 @@ class _EventHandler():
       """
 
       for each_file in log_files_dict:
-         log_files_dict[each_file] =  os.path.getmtime(log_file_dir + '/' + each_file)
+         log_files_dict[each_file] =  os.path.getmtime(os.path.join(log_file_dir, each_file))
 
       time_sorted_logs = self.sort_dict(log_files_dict)
 
