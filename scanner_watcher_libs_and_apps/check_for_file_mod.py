@@ -3,8 +3,9 @@
 
 
 import   asyncio
-
 import   os, sys
+import   subprocess
+import   datetime
 
 from     pathlib                    import Path
 
@@ -34,6 +35,20 @@ class _EventHandler(FileSystemEventHandler):
 
       if ((event.event_type == "modified") or (event.event_type == "created") or (event.event_type == "moved")):
          print ("File: %36s has event: %s" % (os.environ['MRI_SCANNER_RAW_POOL'], event.event_type))
+
+      if (event.event_type == "modified"):
+         header_reader_bin = os.environ['MRI_SCANNER_RAW_HEADER_READER']
+         header_pool_file  = os.environ['MRI_SCANNER_RAW_POOL']
+         command_to_run    = [header_reader_bin, '-verbose', header_pool_file]
+         dest_file         = open ('/tmp/active_header_' + datetime.datetime.now().strftime("%Y%m%d_%H%M%S"), 'w+')
+         read_pool_process = subprocess.Popen(
+                                 command_to_run,
+                                 stdout=dest_file,
+                                 stderr=subprocess.PIPE,
+                                 text=True   )
+
+         stdout, stderr    = read_pool_process.communicate()
+         dest_file.close()
 
 
 
