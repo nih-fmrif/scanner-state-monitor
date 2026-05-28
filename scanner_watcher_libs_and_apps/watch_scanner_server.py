@@ -13,6 +13,7 @@ import   socket
 sys.path.insert(0, os.path.abspath('.'))
 import   Siemens
 import   GE
+import   common
 
 
 
@@ -219,12 +220,18 @@ async def main_scanner_observer_task():
       parallel.
    """
 
-   # reading logging location from environment from account running this.
-   try:
-      os.environ['MRI_SCANNER_LOG_DIR']
-   except:
-      print ('\n   !!! Please define the environment variable MRI_SCANNER_LOG_DIR !!!\n')
-      sys.exit(1)
+   # Check for all needed environment variables first!
+
+   environment_vars = ['MRI_SCANNER_LOG_DIR',
+                       'MRI_SCANNER_VENDOR',
+                       'MRI_SCANNER_AETITLE',
+                       'MRI_SCANNER_INFO_PUBLISH_TO_HOST',
+                       'MRI_SCANNER_INFO_PUBLISH_TO_PORT']
+
+   common.routines.check_env_vars(environment_vars)
+
+   # If all necessary environment variables have been defined, proceed with program
+   # execution.
 
    vendor       = os.environ['MRI_SCANNER_VENDOR']
    scanner_AET  = os.environ['MRI_SCANNER_AETITLE']

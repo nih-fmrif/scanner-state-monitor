@@ -1,10 +1,12 @@
 
-import os
+import os, sys
 import asyncio
 import socket
 import datetime
 import logging
 
+sys.path.insert(0, os.path.abspath('.'))
+import common
 
 
 state_poll_interval = 0.5   # in seconds
@@ -15,28 +17,8 @@ scan_event_logger   = logging.getLogger(__name__)
 
 
 
-environment_vars = ['MRI_SCANNER_INFO_PUBLISH_TO_HOST',
-                    'MRI_SCANNER_INFO_PUBLISH_TO_PORT', 'PWD']
-
 # create a few global variables to help with scanner state tracking
 global patient_in_scanner, afni_running, data_being_acquired
-
-
-
-def check_env_vars(variable_list):
-
-   '''
-      Basic utility to check that all needed enviroment
-      variables are defined, before executing rest of
-      code.
-   '''
-
-   for each_var in variable_list:
-      try:
-         os.environ[each_var]
-      except KeyError:
-         scan_event_logger.error(f"Unable to find required variable: {each_var} in environment - please define.")
-         raise SystemExit(1)
 
 
 
@@ -108,7 +90,15 @@ def process_current_state(state_to_process):
 
 if __name__ == "__main__":
 
-   check_env_vars(environment_vars)
+   # Check for all needed environment variables first!
+
+   environment_vars = ['MRI_SCANNER_INFO_PUBLISH_TO_HOST',
+                       'MRI_SCANNER_INFO_PUBLISH_TO_PORT']
+
+   common.routines.check_env_vars(environment_vars)
+
+   # If all necessary environment variables have been defined, proceed with program
+   # execution.
 
    global patient_in_scanner
    patient_in_scanner = False
