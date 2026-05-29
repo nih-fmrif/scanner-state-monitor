@@ -3,11 +3,14 @@
 
 # Basic infrastruture to parse Siemens scanner logs
 
-import      re, os
+import      re, os, sys
 from        itertools   import   repeat
 import      datetime
 import      asyncio
 import      logging
+
+sys.path.insert(0, os.path.abspath('..'))
+import      common
 
 
 
@@ -39,6 +42,16 @@ class event_catcher():
          within here).  If it stays this way, change name of module to reflect
          this.
       """
+
+      # Check for all needed environment variables first!
+
+      environment_vars = ['MRI_SCANNER_RT_EXPORT_HOST',
+                          'MRI_SCANNER_RT_EXPORT_PORT']
+
+      common.routines.check_env_vars(environment_vars)
+
+      # If all necessary environment variables have been defined, proceed with program
+      # execution.
 
       # Since we are looking for order of events to determine what the scanner
       # is doing, and what state it is in, set up regular expression parsers to
