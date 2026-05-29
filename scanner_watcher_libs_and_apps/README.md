@@ -70,3 +70,10 @@ for performance and reliability.
 * MRI\_SCANNER\_RAW\_POOL - path on local file system where vendor's pool of
   headers for raw files is located.
 
+#### If sending DICOM data to AFNI in real time or near real-time:
+
+* MRI\_SCANNER\_DATA\_DIR\_DICOM - directory on system running client where
+  DICOM image data are written to during experiment
+* MRI\_SCANNER\_DATA\_DIR\_AFNI - directory on system running client where
+  AFNI starts from, and can read data from, and write data to
+
