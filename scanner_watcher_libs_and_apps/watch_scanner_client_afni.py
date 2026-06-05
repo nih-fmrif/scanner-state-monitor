@@ -5,6 +5,7 @@ import socket
 import datetime
 import logging
 import subprocess
+import signal
 
 sys.path.insert(0, os.path.abspath('.'))
 import common
@@ -57,7 +58,7 @@ def process_current_state(state_to_process):
 
    scanner_events_dict = state_to_process['all_events']
 
-   global patient_in_scanner, afni_running, data_being_acquired, pid_afni
+   global patient_in_scanner, afni_running, data_being_acquired, afni_process
 
    if ((scanner_events_dict['End scanning session'] <
         scanner_events_dict['Start scanning session']) and not patient_in_scanner):
@@ -74,7 +75,7 @@ def process_current_state(state_to_process):
                                      datetime.datetime.now().strftime("%Y%m%d_%H%M%S"))}'
       os.makedirs(dir_afni, exist_ok=True)
       os.chdir(dir_afni)
-      pid_afni     = subprocess.Popen(['afni', '-rt'],
+      afni_process = subprocess.Popen(['afni', '-rt'],
                                        stdout=subprocess.PIPE,
                                        stderr=subprocess.PIPE,
                                        text=False)
@@ -82,7 +83,14 @@ def process_current_state(state_to_process):
    if (afni_running and not patient_in_scanner):
       afni_running = False
       scan_event_logger.info("Should stop AFNI now")
-      pid_afni.terminate()
+      # Process ID returned by sub-process seems to be for the shell which
+      # spawns the actual AFNI process, which then seems to have the next
+      # process ID, numerically ...  Should see if there's a more robust
+      # way to do this ...
+      os.kill(afni_process.pid + 1, signal.SIGTERM)
+      # To get the PID of running afni real-time, can use somthing along
+      # the lines of:
+      # os.system("ps -ef | grep 'afni -rt' | grep -v grep | tr -s ' ' | cut -d ' ' -f2 -")
 
    if (afni_running    and     (scanner_events_dict['Pulse sequence prepped'] >
                                 scanner_events_dict['Scanner is done acquiring data'])):
