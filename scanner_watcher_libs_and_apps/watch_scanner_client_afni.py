@@ -74,6 +74,8 @@ def process_current_state(state_to_process):
       dir_afni     = f'{os.path.join(os.environ['MRI_SCANNER_DATA_DIR_AFNI'],
                                      datetime.datetime.now().strftime("%Y%m%d_%H%M%S"))}'
       os.makedirs(dir_afni, exist_ok=True)
+      os.chmod(dir_afni, 0o5777) # When creating directory, allow users to interact with
+                                 # data being written there, but not allow to delete them.
       os.chdir(dir_afni)
       afni_process = subprocess.Popen(['afni', '-rt'],
                                        stdout=subprocess.PIPE,
