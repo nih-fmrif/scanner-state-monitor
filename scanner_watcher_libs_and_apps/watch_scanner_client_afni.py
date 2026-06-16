@@ -86,13 +86,13 @@ def process_current_state(state_to_process):
       afni_running = False
       scan_event_logger.info("Should stop AFNI now")
       # Process ID returned by sub-process seems to be for the shell which
-      # spawns the actual AFNI process, which then seems to have the next
-      # process ID, numerically ...  Should see if there's a more robust
-      # way to do this ...
-      os.kill(afni_process.pid + 1, signal.SIGTERM)
-      # To get the PID of running afni real-time, can use somthing along
-      # the lines of:
-      # os.system("ps -ef | grep 'afni -rt' | grep -v grep | tr -s ' ' | cut -d ' ' -f2 -")
+      # spawns the actual AFNI process, so use the following to get PID of
+      # the acutal running AFNI real-time process.
+      afni_process_stop = subprocess.run("ps -ef | grep 'afni -rt' | grep -v grep | tr -s ' ' | cut -d ' ' -f2 -",
+                                         shell=True, text=True,
+                                         stdout=subprocess.PIPE,
+                                         stderr=subprocess.PIPE)
+      os.kill(int(afni_process_stop.stdout), signal.SIGTERM)
 
    if (afni_running    and     (scanner_events_dict['Pulse sequence prepped'] >
                                 scanner_events_dict['Scanner is done acquiring data'])):
