@@ -3,11 +3,14 @@
 
 # Basic infrastruture to parse Siemens scanner logs
 
-import      re, os
+import      re, os, sys
 from        itertools   import   repeat
 import      datetime
 import      asyncio
 import      logging
+
+sys.path.insert(0, os.path.abspath('..'))
+import      common
 
 
 
@@ -39,6 +42,16 @@ class event_catcher():
          within here).  If it stays this way, change name of module to reflect
          this.
       """
+
+      # Check for all needed environment variables first!
+
+      environment_vars = ['MRI_SCANNER_RT_EXPORT_HOST',
+                          'MRI_SCANNER_RT_EXPORT_PORT']
+
+      common.routines.check_env_vars(environment_vars)
+
+      # If all necessary environment variables have been defined, proceed with program
+      # execution.
 
       # Since we are looking for order of events to determine what the scanner
       # is doing, and what state it is in, set up regular expression parsers to
@@ -284,12 +297,16 @@ class event_catcher():
             for each_line in lines:
 
                # Check for MEAS_ in message string, and if present, update events
-               # dictionary with current time for corresponding event.
+               # dictionary with current time for corresponding event, if time is
+               # later than time stored in events dictionary.
                if "MEAS_".casefold() in each_line.casefold():
+                  current_time = datetime.datetime.now()
                   if "MEAS_START".casefold() in each_line.casefold():
-                     self.scanner_events_dict['MSR_OK'] = datetime.datetime.now()
+                     if (current_time > self.scanner_events_dict['MSR_OK']):
+                        self.scanner_events_dict['MSR_OK'] = current_time
                   else: # "MEAS_FINISHED".casefold() in each_line.casefold():
-                     self.scanner_events_dict['MSR_MEAS_FINISHED'] = datetime.datetime.now()
+                     if (current_time > self.scanner_events_dict['MSR_MEAS_FINISHED']):
+                        self.scanner_events_dict['MSR_MEAS_FINISHED'] = current_time
                   logger_siemens_handler.warning(each_line)
                else:
                   logger_siemens_handler.debug(each_line)

@@ -98,8 +98,8 @@ class _EventHandler():
       """
 
       for each_file in log_files_dict:
-         log_files_dict[each_file] =  os.path.getmtime(log_file_dir + '/' + each_file)
-
+         log_files_dict[each_file] =  os.path.getmtime(os.path.join(log_file_dir,
+                                                                    each_file))
       time_sorted_logs = self.sort_dict(log_files_dict)
 
       log_lines = []
@@ -114,7 +114,7 @@ class _EventHandler():
 
          file_name = each_file[0] # i.e. the name of the file. [1] is its
                                   # modification time.
-         file_path = log_file_dir + '/' + file_name
+         file_path = os.path.join(log_file_dir,file_name)
 
          if ("gz" in file_name):
             print ("Prepare for reading   compressed file: %s" % file_name)

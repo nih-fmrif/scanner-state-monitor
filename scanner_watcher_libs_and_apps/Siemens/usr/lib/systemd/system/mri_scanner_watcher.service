@@ -1,0 +1,23 @@
+
+[Unit]
+Description=FMRIF MRI scanner watcher utility
+After=network.target
+StartLimitIntervalSec=0
+
+# Replace paths, IP addresses, and ports with values consistent with local site
+# implementations.
+[Service]
+Type=simple
+Restart=always
+RestartSec=1
+Environment="MRI_SCANNER_LOG_DIR=$PATH_TO_LOCAL_MOUNT_FOR_SCANNER_LOGGING_DIRECTORY"
+Environment="MRI_SCANNER_VENDOR=GE"                      "MRI_SCANNER_AETITLE=$SCANNER_AE_TITLE"
+Environment="MRI_SCANNER_INFO_PUBLISH_TO_HOST=localhost" "MRI_SCANNER_INFO_PUBLISH_TO_PORT=5555"
+# Below needed on Siemens' systems
+# Environment="MRI_SCANNER_RT_EXPORT_HOST=localhost"       "MRI_SCANNER_RT_EXPORT_PORT=8111"
+Environment="PYTHONPATH=$PYTHONPATH:$LOCAL_PATH_TO/dmv_mri_s-watch/scanner_watcher_libs_and_apps"
+ExecStart=$PATH_TO_PYTHON3_IN_ENV_WITH_ALL_NEEDED_LIBS/python3  $LOCAL_PATH_TO/dmv_mri_s-watch/scanner_watcher_libs_and_apps/watch_scanner_server.py
+
+[Install]
+WantedBy=multi-user.target
+
