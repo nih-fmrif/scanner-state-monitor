@@ -1,0 +1,15 @@
+
+#!/bin/sh
+
+# Simple script to set up environment for scanner watcher, and to run that program
+
+export MRI_SCANNER_INFO_PUBLISH_TO_HOST='localhost'
+export MRI_SCANNER_INFO_PUBLISH_TO_PORT=5555
+export       MRI_SCANNER_DATA_DIR_DICOM='/path/to/which/DICOM/data/is/written'
+export        MRI_SCANNER_DATA_DIR_AFNI='/path/where/AFNI/will/start/up/from/and/write/data/to'
+export                       PYTHONPATH=$PYTHONPATH:/your/own/path/to/dmv_mri_s-watch/scanner_watcher_libs_and_apps/common
+
+source /path/to/venv/with_python_libs_to_support_app/bin/activate
+
+python /your/own/path_to/dmv_mri_s-watch/scanner_watcher_libs_and_apps/watch_scanner_client_afni.py
+

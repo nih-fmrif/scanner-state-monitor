@@ -66,7 +66,7 @@ class event_catcher():
                                     'Got scanStopped',                     # Scan completed.
                                     'Entry gotScanStopped',                # Stop scan button pressed.
                                     'EM_HC_STOP_BUTTON_PRESS',             # Stop scan button pressed.
-                                    # 'exam_path of image',                  # Should indicate as to where images are written to on disk.
+                                    'exam_path of image',                  # Should indicate as to where images are written to on disk.
                                     # 'updateOnReconDone',                   # Check scan log for most recent Exam(Ex)/series(Ser)/image(Img) numbers from recon.
                                     # 'Got reconStop',                       # Recon stopped?
                                     # 'gotImgXfrDone',                       # Images transfer to ???
@@ -124,11 +124,27 @@ class event_catcher():
                # print ("Event %45s happened at date: %s, time: %s" % (event_to_find, this_event_date.group(), this_event_time.group()))
 
                try:
-                  # Take time string as extract from the scanner logs, i.e. Day Mon Date Year HH:MM:SS.ms
-                  date_time_object        = datetime.datetime.strptime(this_event_date_time, '%a %b %d %Y %H:%M:%S.%f')
+                  # For this event - we don't need to record the time it happened, but we need to record
+                  # the directory where data for the session are being written to.
+                  if (event_to_find == 'exam_path of image'):
+                     # Here's sample of the text to be processed to get this value:
+                     #
+                     # 09:18:40.947429	path->exam_path of image: /export/home1/sdc_image_pool/images/p463/e1509
+                     #
+                     # Up to 'sdc_image_pool/images' is mounted and recorded in environment variable
+                     # 'MRI_SCANNER_DATA_DIR_DICOM', so grab the last couple of elements of this to
+                     # get the patient and their exam directories, and store this for watching for
+                     # incoming image data.
+                     self.scanner_events_dict[event_to_find] = os.path.join(os.environ['MRI_SCANNER_DATA_DIR_DICOM'],
+                                                                            current_line.split("/")[-2],
+                                                                            current_line.split("/")[-1])
+                  else:
+                     # Take time string as extract from the scanner logs, i.e. Day Mon Date Year HH:MM:SS.ms
+                     date_time_object        = datetime.datetime.strptime(this_event_date_time, '%a %b %d %Y %H:%M:%S.%f')
 
-                  # Use time object as dictionary value
-                  self.scanner_events_dict[event_to_find] = date_time_object
+                     # Use time object as dictionary value
+                     self.scanner_events_dict[event_to_find] = date_time_object
+
 
                   # print ("Event %45s happened at date-time: %s" % (event_to_find, self.scanner_events_dict[event_to_find]))
 
@@ -186,6 +202,8 @@ class event_catcher():
             standardized_scanner_events['Scanner is done acquiring data'] = scanner_events[event]
          if (event == 'operator confirmed'):
             standardized_scanner_events['End scanning session'] = scanner_events[event]
+         if (event == 'exam_path of image'):
+            standardized_scanner_events['session image data directory'] = scanner_events[event]
 
       # return (scanner_state)
       return (standardized_scanner_events)

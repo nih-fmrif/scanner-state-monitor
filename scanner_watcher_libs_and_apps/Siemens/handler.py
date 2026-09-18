@@ -9,8 +9,8 @@ import      datetime
 import      asyncio
 import      logging
 
-sys.path.insert(0, os.path.abspath('..'))
-import      common
+sys.path.insert(0, os.path.abspath('.'))
+import      Shared
 
 
 
@@ -46,9 +46,10 @@ class event_catcher():
       # Check for all needed environment variables first!
 
       environment_vars = ['MRI_SCANNER_RT_EXPORT_HOST',
-                          'MRI_SCANNER_RT_EXPORT_PORT']
+                          'MRI_SCANNER_RT_EXPORT_PORT',
+                          'MRI_SCANNER_DATA_DIR_DICOM']
 
-      common.routines.check_env_vars(environment_vars)
+      Shared.routines.check_env_vars(environment_vars)
 
       # If all necessary environment variables have been defined, proceed with program
       # execution.
@@ -233,6 +234,8 @@ class event_catcher():
          else:
             if (scanner_events[event] > standardized_scanner_events[standard_key]):
                standardized_scanner_events[standard_key] = scanner_events[event]
+
+      standardized_scanner_events['session image data directory'] = os.environ['MRI_SCANNER_DATA_DIR_DICOM']
 
       return (standardized_scanner_events)
 

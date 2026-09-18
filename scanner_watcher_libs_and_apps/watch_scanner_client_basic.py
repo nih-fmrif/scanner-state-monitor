@@ -70,18 +70,26 @@ def process_current_state(state_to_process):
    scanner_ae_title   = state_to_process['scanner AE Title']
    scanner_vendor     = state_to_process['scanner vendor']
 
-   # Convert dictionary of scanner state events directly into time-ordered list,
-   # using lambda function
-   time_ordered       = sorted(state_to_process['all_events'].items(),
-                               key=lambda item: item[1], reverse=False)
+   try:
+      # Convert dictionary of scanner state events directly into time-ordered
+      # list, using lambda function if only time values are stored as 'values'
+      # in the dictionary.
+      time_ordered       = sorted(state_to_process['all_events'].items(),
+                                  key=lambda item: item[1], reverse=False)
 
-   print ("\n *** For scanner %s, from vendor %s, order of events at %s is:\n"
-          % (scanner_ae_title, scanner_vendor,
-             datetime.datetime.now().strftime("%Y_%m_%d_%H:%M:%S")))
+      print ("\n *** For scanner %s, from vendor %s, order of events at %s is:\n"
+             % (scanner_ae_title, scanner_vendor,
+                datetime.datetime.now().strftime("%Y_%m_%d_%H:%M:%S")))
 
-   for events in time_ordered:
-      print ("Event, %32s, occurred at %26s" % (events[0], events[1]))
-   print ("\n")
+      for events in time_ordered:
+         print ("Event, %32s, occurred at %26s" % (events[0], events[1]))
+      print ("\n")
+
+   except:
+      # Else just print contents of state directory, regardless of contents
+      for events in state_to_process['all_events'].items():
+         print ("Event, %32s, occurred at %26s" % (events[0], events[1]))
+      print ("\n")
 
    return
 
